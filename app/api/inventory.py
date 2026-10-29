@@ -1,5 +1,5 @@
 import base64
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Form
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
@@ -10,9 +10,8 @@ router = APIRouter(prefix="/inventory", tags=["Inventory & Shopping"])
 
 # --- LODÓWKA ---
 @router.get("/", response_model=List[schemas.FridgeItemResponse])
-def get_inventory(db: Session = Depends(get_db)):
-    # Sortujemy tak, aby produkty z najkrótszą datą ważności były na samej górze!
-    return db.query(models.FridgeItem).order_by(models.FridgeItem.days_left.asc()).all()
+def get_inventory(device_id: str, db: Session = Depends(get_db)):
+    return db.query(models.FridgeItem).filter(models.FridgeItem.device_id == device_id).order_by(models.FridgeItem.days_left.asc()).all()
 
 @router.post("/", response_model=schemas.FridgeItemResponse)
 def add_item(item: schemas.FridgeItemCreate, db: Session = Depends(get_db)):
@@ -31,14 +30,14 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Item deleted"}
 
-@router.delete("/")
-def clear_inventory(db: Session = Depends(get_db)):
-    db.query(models.FridgeItem).delete()
+@router.delete("/clear/{device_id}")
+def clear_inventory(device_id: str, db: Session = Depends(get_db)):
+    db.query(models.FridgeItem).filter(models.FridgeItem.device_id == device_id).delete()
     db.commit()
-    return {"message": "Wszystkie produkty zostały usunięte"}
+    return {"message": "Wszystkie produkty użytkownika zostały usunięte"}
 
 @router.post("/scan")
-async def scan_inventory_image(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def scan_inventory_image(device_id: str = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
     contents = await file.read()
     image_base64 = base64.b64encode(contents).decode("utf-8")
     
@@ -49,7 +48,7 @@ async def scan_inventory_image(file: UploadFile = File(...), db: Session = Depen
         name = item.get("name", "Produkt")
         qty = item.get("quantity", "1 szt.")
         days = item.get("days_left", 5)
-        new_item = models.FridgeItem(name=name, quantity=qty, status="active", days_left=days)
+        new_item = models.FridgeItem(device_id=device_id, name=name, quantity=qty, status="active", days_left=days)
         db.add(new_item)
         added_names.append(name)
     
@@ -61,12 +60,12 @@ async def scan_inventory_image(file: UploadFile = File(...), db: Session = Depen
 
 # --- LISTA ZAKUPÓW ---
 @router.get("/shopping", response_model=List[schemas.ShoppingItemResponse])
-def get_shopping_list(db: Session = Depends(get_db)):
-    return db.query(models.ShoppingItem).all()
+def get_shopping_list(device_id: str, db: Session = Depends(get_db)):
+    return db.query(models.ShoppingItem).filter(models.ShoppingItem.device_id == device_id).all()
 
 @router.post("/shopping", response_model=schemas.ShoppingItemResponse)
 def add_shopping_item(item: schemas.ShoppingItemCreate, db: Session = Depends(get_db)):
-    db_item = models.ShoppingItem(name=item.name, bought=False)
+    db_item = models.ShoppingItem(device_id=item.device_id, name=item.name, bought=False)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -80,8 +79,8 @@ def toggle_shopping_item(item_id: int, db: Session = Depends(get_db)):
         db.commit()
     return {"message": "Updated"}
 
-@router.delete("/shopping/clear")
-def clear_shopping_list(db: Session = Depends(get_db)):
-    db.query(models.ShoppingItem).delete()
+@router.delete("/shopping/clear/{device_id}")
+def clear_shopping_list(device_id: str, db: Session = Depends(get_db)):
+    db.query(models.ShoppingItem).filter(models.ShoppingItem.device_id == device_id).delete()
     db.commit()
     return {"message": "Lista zakupów wyczyszczona"}

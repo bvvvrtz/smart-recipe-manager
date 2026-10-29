@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional, List
 
-# --- Schematy Lodówki ---
 class FridgeItemCreate(BaseModel):
+    device_id: str
     name: str
     quantity: Optional[str] = "1 szt."
     status: Optional[str] = "active"
@@ -10,6 +10,7 @@ class FridgeItemCreate(BaseModel):
 
 class FridgeItemResponse(BaseModel):
     id: int
+    device_id: str
     name: str
     quantity: str
     status: str
@@ -18,11 +19,12 @@ class FridgeItemResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# --- Schematy Generowania i Zapisywania Przepisów ---
 class RecipeGenerateRequest(BaseModel):
+    device_id: str
     style: Optional[str] = "Dowolny"
 
 class SavedRecipeCreate(BaseModel):
+    device_id: str
     title: str
     prep_time: str
     calories: str
@@ -31,6 +33,7 @@ class SavedRecipeCreate(BaseModel):
 
 class SavedRecipeResponse(BaseModel):
     id: int
+    device_id: str
     title: str
     prep_time: str
     calories: str
@@ -40,12 +43,13 @@ class SavedRecipeResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# --- Schematy Listy Zakupów ---
 class ShoppingItemCreate(BaseModel):
+    device_id: str
     name: str
 
 class ShoppingItemResponse(BaseModel):
     id: int
+    device_id: str
     name: str
     bought: bool
 

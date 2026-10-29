@@ -19,18 +19,17 @@
 </head>
 <body class="bg-slate-50 text-slate-800 pb-28">
 
-    <!-- Nagłówek -->
     <header class="bg-emerald-600 text-white pt-10 pb-5 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div>
                 <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
                     <i class="fa-solid fa-leaf"></i> Smart Fridge PRO
                 </h1>
-                <p class="text-emerald-100 text-xs mt-0.5">Lodówka, Paragony & Makro AI</p>
+                <p class="text-emerald-100 text-xs mt-0.5">Prywatna lodówka & AI</p>
             </div>
             <label class="bg-white text-emerald-700 px-3.5 py-2 rounded-2xl font-bold text-xs shadow-md active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
                 <i class="fa-solid fa-camera text-base"></i>
-                <span>Lodówka / Paragon</span>
+                <span>Skanuj</span>
                 <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="scanImage(event)">
             </label>
         </div>
@@ -38,16 +37,13 @@
 
     <main class="max-w-md mx-auto px-4 mt-5">
 
-        <!-- Alert ładowania -->
         <div id="statusAlert" class="hidden mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl text-sm flex items-center gap-3 shadow-sm">
             <i class="fa-solid fa-spinner fa-spin text-emerald-600 text-lg"></i>
             <span id="statusText">Przetwarzanie przez AI...</span>
         </div>
 
-        <!-- ================= ZAKŁADKA 1: LODÓWKA & AI ================= -->
+        <!-- ================= ZAKŁADKA 1: LODÓWKA ================= -->
         <div id="tab-fridge" class="space-y-5">
-            
-            <!-- Ręczne dodawanie z dniami ważności -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dodaj produkt ręcznie</h2>
                 <div class="flex gap-1.5">
@@ -65,11 +61,10 @@
                 </div>
             </div>
 
-            <!-- Lista produktów w lodówce -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-snowflake text-emerald-600"></i> Stan Lodówki
+                        <i class="fa-solid fa-snowflake text-emerald-600"></i> Moja Lodówka
                         <span id="itemCount" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0</span>
                     </h2>
                     <button onclick="clearInventory()" id="clearAllBtn" class="hidden text-xs text-red-500 font-semibold flex items-center gap-1 bg-red-50 px-2.5 py-1 rounded-lg active:scale-95 transition">
@@ -79,14 +74,12 @@
                 <ul id="inventoryList" class="divide-y divide-slate-100 text-sm space-y-1"></ul>
             </div>
 
-            <!-- Wybór stylu kuchni i Generowanie AI -->
             <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-5 rounded-3xl text-white shadow-lg">
                 <h2 class="text-base font-bold flex items-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Szef Kuchni AI
                 </h2>
                 <p class="text-emerald-100 text-xs mt-0.5 mb-3">Wybierz styl lub sprzęt:</p>
                 
-                <!-- Kafelki wyboru stylu -->
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2" id="styleChips">
                     <button onclick="selectStyle('Dowolny Zero Waste', this)" class="style-chip bg-white text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">🎲 Dowolny</button>
                     <button onclick="selectStyle('Kuchnia Meksykańska (Burrito, Tacos, Bowl)', this)" class="style-chip bg-emerald-700/60 text-emerald-100 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🌮 Meksykańska</button>
@@ -100,7 +93,6 @@
                 </button>
             </div>
 
-            <!-- Karta wygenerowanego przepisu -->
             <div id="recipeContainer" class="hidden bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
                 <div class="flex justify-between items-start gap-2">
                     <h3 id="recipeTitle" class="font-bold text-slate-800 text-lg leading-snug"></h3>
@@ -109,7 +101,6 @@
                     </button>
                 </div>
 
-                <!-- Pigułki Kalorii, Czasu i Makro -->
                 <div class="flex flex-wrap gap-2 text-xs font-bold">
                     <span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg flex items-center gap-1">
                         <i class="fa-solid fa-fire"></i> <span id="recipeCalories"></span>
@@ -122,7 +113,6 @@
                     </span>
                 </div>
 
-                <!-- Brakujące składniki do kliknięcia na listę zakupów -->
                 <div id="missingSection" class="hidden bg-slate-50 p-3 rounded-xl border border-slate-200">
                     <p class="text-xs font-bold text-slate-500 mb-2">Warto dokupić (kliknij, aby dodać do zakupów):</p>
                     <div id="missingList" class="flex flex-wrap gap-1.5"></div>
@@ -132,12 +122,12 @@
             </div>
         </div>
 
-        <!-- ================= ZAKŁADKA 2: LISTA ZAKUPÓW ================= -->
+        <!-- ================= ZAKŁADKA 2: ZAKUPY ================= -->
         <div id="tab-shopping" class="hidden space-y-4">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dodaj do kupienia</h2>
                 <div class="flex gap-2">
-                    <input type="text" id="shopInput" placeholder="np. Śmietanka 30%, Kolendra..." class="flex-1 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
+                    <input type="text" id="shopInput" placeholder="np. Śmietanka 30%..." class="flex-1 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
                     <button onclick="addShoppingItem()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold active:scale-95 transition">
                         <i class="fa-solid fa-plus"></i>
                     </button>
@@ -147,7 +137,7 @@
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-cart-shopping text-emerald-600"></i> Lista Zakupów
+                        <i class="fa-solid fa-cart-shopping text-emerald-600"></i> Moja Lista Zakupów
                     </h2>
                     <button onclick="clearShopping()" class="text-xs text-red-500 font-semibold bg-red-50 px-2.5 py-1 rounded-lg">Wyczyść</button>
                 </div>
@@ -155,7 +145,7 @@
             </div>
         </div>
 
-        <!-- ================= ZAKŁADKA 3: ZAPISANE PRZEPISY ================= -->
+        <!-- ================= ZAKŁADKA 3: ZAPISANE ================= -->
         <div id="tab-saved" class="hidden space-y-4">
             <h2 class="text-sm font-bold text-slate-700 px-1 flex items-center gap-2">
                 <i class="fa-solid fa-book-bookmark text-emerald-600"></i> Twoje Ulubione Przepisy
@@ -165,7 +155,6 @@
 
     </main>
 
-    <!-- Dolny pasek nawigacji (iOS Tab Bar) -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 py-2.5 z-30">
         <div class="max-w-md mx-auto flex justify-around items-center text-xs font-semibold">
             <button onclick="switchTab('fridge')" id="nav-fridge" class="flex flex-col items-center gap-1 text-emerald-600">
@@ -184,6 +173,13 @@
     </nav>
 
     <script>
+        // Pobieramy lub generujemy unikalne ID urządzenia
+        let deviceId = localStorage.getItem('smart_fridge_device_id');
+        if (!deviceId) {
+            deviceId = 'dev_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('smart_fridge_device_id', deviceId);
+        }
+
         let selectedStyle = 'Dowolny Zero Waste';
         let lastGeneratedRecipe = null;
 
@@ -216,9 +212,8 @@
             document.getElementById('statusAlert').classList.add('hidden');
         }
 
-        // --- OBSŁUGA LODÓWKI ---
         async function loadInventory() {
-            const res = await fetch('/inventory/');
+            const res = await fetch(`/inventory/?device_id=${deviceId}`);
             const items = await res.json();
             const list = document.getElementById('inventoryList');
             const clearBtn = document.getElementById('clearAllBtn');
@@ -228,7 +223,7 @@
 
             if (items.length === 0) {
                 clearBtn.classList.add('hidden');
-                list.innerHTML = '<li class="text-slate-400 text-center py-4 text-xs">Lodówka jest pusta. Zeskanuj lodówkę lub paragon!</li>';
+                list.innerHTML = '<li class="text-slate-400 text-center py-4 text-xs">Twoja lodówka jest pusta. Zeskanuj lodówkę lub paragon!</li>';
                 return;
             }
             clearBtn.classList.remove('hidden');
@@ -267,6 +262,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    device_id: deviceId,
                     name: nameInput.value.trim(),
                     quantity: qtyInput.value.trim() || '1 szt.',
                     status: 'active',
@@ -283,8 +279,8 @@
         }
 
         async function clearInventory() {
-            if (!confirm('Usunąć wszystkie produkty z lodówki?')) return;
-            await fetch('/inventory/', { method: 'DELETE' });
+            if (!confirm('Usunąć wszystkie produkty ze swojej lodówki?')) return;
+            await fetch(`/inventory/clear/${deviceId}`, { method: 'DELETE' });
             loadInventory();
         }
 
@@ -295,11 +291,12 @@
             showStatus('AI analizuje zdjęcie / paragon...');
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('device_id', deviceId);
 
             try {
                 const res = await fetch('/inventory/scan', { method: 'POST', body: formData });
                 const data = await res.json();
-                alert(`Dodano (${data.detected_items.length}):\n` + data.detected_items.join(', '));
+                alert(`Dodano do Twojej lodówki (${data.detected_items.length}):\n` + data.detected_items.join(', '));
                 loadInventory();
             } catch (err) {
                 alert('Błąd podczas skanowania.');
@@ -309,14 +306,13 @@
             }
         }
 
-        // --- GENEROWANIE I ZAPISYWANIE PRZEPISÓW ---
         async function generateRecipe() {
             showStatus(`Szef Kuchni AI układa przepis (${selectedStyle})...`);
             try {
                 const res = await fetch('/recipes/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ style: selectedStyle })
+                    body: JSON.stringify({ device_id: deviceId, style: selectedStyle })
                 });
                 const data = await res.json();
                 lastGeneratedRecipe = data;
@@ -356,7 +352,7 @@
             await fetch('/inventory/shopping', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
+                body: JSON.stringify({ device_id: deviceId, name })
             });
             btn.className = 'bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1';
             btn.innerHTML = `<i class="fa-solid fa-check"></i> ${name}`;
@@ -368,6 +364,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    device_id: deviceId,
                     title: lastGeneratedRecipe.title,
                     prep_time: lastGeneratedRecipe.prep_time,
                     calories: lastGeneratedRecipe.calories,
@@ -375,17 +372,17 @@
                     content: lastGeneratedRecipe.recipe_text
                 })
             });
-            alert('Przepis zapisany w zakładce Zapisane!');
+            alert('Przepis zapisany w Twoich ulubionych!');
         }
 
         async function loadSavedRecipes() {
-            const res = await fetch('/recipes/saved');
+            const res = await fetch(`/recipes/saved?device_id=${deviceId}`);
             const recipes = await res.json();
             const container = document.getElementById('savedRecipesList');
             container.innerHTML = '';
 
             if (recipes.length === 0) {
-                container.innerHTML = '<p class="text-slate-400 text-center py-8 text-xs">Brak zapisanych przepisów. Kliknij "Zapisz" przy wygenerowanym daniu!</p>';
+                container.innerHTML = '<p class="text-slate-400 text-center py-8 text-xs">Brak zapisanych przepisów.</p>';
                 return;
             }
 
@@ -411,15 +408,14 @@
             loadSavedRecipes();
         }
 
-        // --- LISTA ZAKUPÓW ---
         async function loadShopping() {
-            const res = await fetch('/inventory/shopping');
+            const res = await fetch(`/inventory/shopping?device_id=${deviceId}`);
             const items = await res.json();
             const list = document.getElementById('shoppingList');
             list.innerHTML = '';
 
             if (items.length === 0) {
-                list.innerHTML = '<li class="text-slate-400 text-center py-6 text-xs">Lista zakupów jest pusta.</li>';
+                list.innerHTML = '<li class="text-slate-400 text-center py-6 text-xs">Twoja lista zakupów jest pusta.</li>';
                 return;
             }
 
@@ -440,7 +436,7 @@
             await fetch('/inventory/shopping', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: input.value.trim() })
+                body: JSON.stringify({ device_id: deviceId, name: input.value.trim() })
             });
             input.value = '';
             loadShopping();
@@ -452,7 +448,7 @@
         }
 
         async function clearShopping() {
-            await fetch('/inventory/shopping/clear', { method: 'DELETE' });
+            await fetch(`/inventory/shopping/clear/${deviceId}`, { method: 'DELETE' });
             loadShopping();
         }
 

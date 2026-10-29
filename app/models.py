@@ -5,15 +5,17 @@ class FridgeItem(Base):
     __tablename__ = "fridge_items"
 
     id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(String, index=True, nullable=False)  # Unikalne ID telefonu
     name = Column(String, index=True, nullable=False)
     quantity = Column(String, default="1 szt.")
     status = Column(String, default="active")
-    days_left = Column(Integer, default=5)  # Liczba dni do końca ważności
+    days_left = Column(Integer, default=5)
 
 class SavedRecipe(Base):
     __tablename__ = "saved_recipes"
 
     id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(String, index=True, nullable=False)  # Unikalne ID telefonu
     title = Column(String, nullable=False)
     prep_time = Column(String)
     calories = Column(String)
@@ -24,5 +26,6 @@ class ShoppingItem(Base):
     __tablename__ = "shopping_items"
 
     id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(String, index=True, nullable=False)  # Unikalne ID telefonu
     name = Column(String, nullable=False)
     bought = Column(Boolean, default=False)

@@ -8,21 +8,24 @@ from app.services.ai_service import generate_recipe_from_ingredients
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
 
 @router.post("/generate")
-def create_recipe(req: schemas.RecipeGenerateRequest = None, db: Session = Depends(get_db)):
-    active_items = db.query(models.FridgeItem).filter(models.FridgeItem.status == "active").order_by(models.FridgeItem.days_left.asc()).all()
+def create_recipe(req: schemas.RecipeGenerateRequest, db: Session = Depends(get_db)):
+    active_items = db.query(models.FridgeItem).filter(
+        models.FridgeItem.device_id == req.device_id,
+        models.FridgeItem.status == "active"
+    ).order_by(models.FridgeItem.days_left.asc()).all()
     
     items_data = [
         {"name": item.name, "quantity": item.quantity, "days_left": item.days_left}
         for item in active_items
     ]
-    style = req.style if req else "Dowolny"
+    style = req.style if req.style else "Dowolny"
     
     recipe_data = generate_recipe_from_ingredients(items_data, style)
     return recipe_data
 
 @router.get("/saved", response_model=List[schemas.SavedRecipeResponse])
-def get_saved_recipes(db: Session = Depends(get_db)):
-    return db.query(models.SavedRecipe).order_by(models.SavedRecipe.id.desc()).all()
+def get_saved_recipes(device_id: str, db: Session = Depends(get_db)):
+    return db.query(models.SavedRecipe).filter(models.SavedRecipe.device_id == device_id).order_by(models.SavedRecipe.id.desc()).all()
 
 @router.post("/saved", response_model=schemas.SavedRecipeResponse)
 def save_recipe(recipe: schemas.SavedRecipeCreate, db: Session = Depends(get_db)):
