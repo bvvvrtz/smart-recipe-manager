@@ -94,3 +94,8 @@ class MealLogResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class MealEstimateRequest(BaseModel):
+    device_id: str
+    description: str
+    date: str

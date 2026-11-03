@@ -45,7 +45,7 @@ class MealLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     device_id = Column(String, index=True, nullable=False)
-    date = Column(String, index=True, nullable=False)  # Format YYYY-MM-DD
+    date = Column(String, index=True, nullable=False)
     name = Column(String, nullable=False)
     calories = Column(Integer, default=0)
     protein = Column(Integer, default=0)

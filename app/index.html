@@ -117,11 +117,8 @@
             </div>
 
             <div id="recipeContainer" class="hidden bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                <div class="flex justify-between items-start gap-2">
-                    <h3 id="recipeTitle" class="font-bold text-slate-800 text-lg leading-snug"></h3>
-                </div>
+                <h3 id="recipeTitle" class="font-bold text-slate-800 text-lg leading-snug"></h3>
 
-                <!-- PRZYCISKI AKCJI PRZEPISU: ZJEDZONE & ZAPISZ -->
                 <div class="flex gap-2">
                     <button onclick="eatCurrentRecipe()" class="flex-1 bg-emerald-600 text-white py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
                         <i class="fa-solid fa-utensils"></i> Zjedzone! (+Makro)
@@ -154,7 +151,6 @@
 
         <!-- ================= ZAKŁADKA 2: MAKRO & FITATU ================= -->
         <div id="tab-macro" class="hidden space-y-5">
-            <!-- GŁÓWNA KARTA FITATU -->
             <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
                 <div class="flex justify-between items-center">
                     <div>
@@ -168,7 +164,6 @@
                     </button>
                 </div>
 
-                <!-- GŁÓWNY PASEK KALORII -->
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                     <div class="flex justify-between items-baseline mb-1.5">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Kalorie</span>
@@ -183,9 +178,7 @@
                     <p id="kcalRemainingText" class="text-[11px] text-slate-500 mt-1.5 text-right font-medium"></p>
                 </div>
 
-                <!-- 3 KOLUMNY MAKRO: BIAŁKO, TŁUSZCZE, WĘGLE -->
                 <div class="grid grid-cols-3 gap-2.5">
-                    <!-- Białko -->
                     <div class="bg-blue-50/60 p-3 rounded-2xl border border-blue-100">
                         <div class="text-xs font-bold text-blue-800 mb-1">Białko (B)</div>
                         <div class="text-sm font-extrabold text-blue-900 mb-1.5">
@@ -195,7 +188,6 @@
                             <div id="pBar" class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                         </div>
                     </div>
-                    <!-- Tłuszcze -->
                     <div class="bg-amber-50/60 p-3 rounded-2xl border border-amber-100">
                         <div class="text-xs font-bold text-amber-800 mb-1">Tłuszcze (T)</div>
                         <div class="text-sm font-extrabold text-amber-900 mb-1.5">
@@ -205,7 +197,6 @@
                             <div id="fBar" class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                         </div>
                     </div>
-                    <!-- Węglowodany -->
                     <div class="bg-purple-50/60 p-3 rounded-2xl border border-purple-100">
                         <div class="text-xs font-bold text-purple-800 mb-1">Węgle (W)</div>
                         <div class="text-sm font-extrabold text-purple-900 mb-1.5">
@@ -217,7 +208,6 @@
                     </div>
                 </div>
 
-                <!-- EDYTOR CELÓW (UKRYTY DOMYŚLNIE) -->
                 <div id="goalEditor" class="hidden pt-3 border-t border-slate-100 space-y-3">
                     <h3 class="text-xs font-bold uppercase text-slate-400">Ustaw swoje dzienne zapotrzebowanie</h3>
                     <div class="grid grid-cols-2 gap-2 text-xs">
@@ -244,22 +234,18 @@
                 </div>
             </div>
 
-            <!-- RĘCZNE DODAWANIE POSIŁKU -->
+            <!-- SZACOWANIE POSIŁKU PRZEZ AI -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Szybkie dodanie posiłku</h3>
-                <input type="text" id="manualMealName" placeholder="Nazwa (np. Shake białkowy, Kebab...)" class="w-full bg-slate-100 px-3 py-2.5 rounded-xl text-sm focus:outline-none">
-                <div class="grid grid-cols-4 gap-1.5">
-                    <input type="number" id="manualKcal" placeholder="kcal" class="bg-slate-100 px-2.5 py-2 rounded-xl text-xs text-center font-semibold focus:outline-none">
-                    <input type="number" id="manualP" placeholder="B (g)" class="bg-blue-50 px-2.5 py-2 rounded-xl text-xs text-center font-semibold text-blue-800 focus:outline-none">
-                    <input type="number" id="manualF" placeholder="T (g)" class="bg-amber-50 px-2.5 py-2 rounded-xl text-xs text-center font-semibold text-amber-800 focus:outline-none">
-                    <input type="number" id="manualC" placeholder="W (g)" class="bg-purple-50 px-2.5 py-2 rounded-xl text-xs text-center font-semibold text-purple-800 focus:outline-none">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Szybkie dodanie posiłku przez AI</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="manualMealName" placeholder="np. Owsianka z masłem orzechowym..." class="flex-1 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
+                    <button onclick="addMealWithAI()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs active:scale-95 transition flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI Licz
+                    </button>
                 </div>
-                <button onclick="addManualMeal()" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs active:scale-95 transition flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-plus"></i> Dodaj do dzisiejszego bilansu
-                </button>
+                <p class="text-[11px] text-slate-400">Wpisz co zjadłeś, a sztuczna inteligencja sama dobierze kalorie i makro.</p>
             </div>
 
-            <!-- LISTA ZJEDZONYCH POSIŁKÓW DZISIAJ -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-utensils text-emerald-600"></i> Dzisiaj zjedzone
@@ -301,7 +287,6 @@
 
     </main>
 
-    <!-- DOLNA NAWIGACJA (4 ZAKŁADKI) -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 z-30">
         <div class="max-w-md mx-auto flex justify-around items-center text-xs font-semibold">
             <button onclick="switchTab('fridge')" id="nav-fridge" class="flex flex-col items-center gap-1 text-emerald-600">
@@ -372,7 +357,6 @@
             document.getElementById('statusAlert').classList.add('hidden');
         }
 
-        // --- FUNKCJE FITATU / MAKRO ---
         function parseNutritionFromText(caloriesStr, macrosStr) {
             let kcal = 0, p = 0, f = 0, c = 0;
             if (caloriesStr) {
@@ -444,7 +428,6 @@
                 });
             }
 
-            // Aktualizacja pasków w nagłówku (Mini Fitatu)
             document.getElementById('miniKcal').innerText = `${totalKcal} / ${currentGoals.calories_goal}`;
             document.getElementById('miniP').innerText = totalP;
             document.getElementById('miniF').innerText = totalF;
@@ -452,7 +435,6 @@
             const miniPct = Math.min(100, Math.round((totalKcal / currentGoals.calories_goal) * 100));
             document.getElementById('miniKcalBar').style.width = `${miniPct}%`;
 
-            // Aktualizacja głównej karty Makro
             document.getElementById('mainKcalEaten').innerText = totalKcal;
             document.getElementById('mainKcalGoal').innerText = currentGoals.calories_goal;
             document.getElementById('mainKcalBar').style.width = `${miniPct}%`;
@@ -474,7 +456,6 @@
             document.getElementById('cGoal').innerText = currentGoals.carbs_goal;
             document.getElementById('cBar').style.width = `${Math.min(100, Math.round((totalC / currentGoals.carbs_goal) * 100))}%`;
 
-            // Wypełnienie formularza edycji celów
             document.getElementById('inputGoalKcal').value = currentGoals.calories_goal;
             document.getElementById('inputGoalP').value = currentGoals.protein_goal;
             document.getElementById('inputGoalF').value = currentGoals.fat_goal;
@@ -523,6 +504,34 @@
             await loadNutritionData();
         }
 
+        async function addMealWithAI() {
+            const inputEl = document.getElementById('manualMealName');
+            const desc = inputEl.value.trim();
+            if (!desc) return;
+
+            showStatus('AI szacuje kalorie i makroskładniki...');
+            try {
+                const res = await fetch('/inventory/nutrition/estimate-and-log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        device_id: deviceId,
+                        date: getTodayStr(),
+                        description: desc
+                    })
+                });
+                if (!res.ok) throw new Error('Błąd serwera');
+                const data = await res.json();
+                inputEl.value = '';
+                await loadNutritionData();
+                alert(`AI oszacowało posiłek:\n${data.name}\n🔥 ${data.calories} kcal | B: ${data.protein}g | T: ${data.fat}g | W: ${data.carbs}g`);
+            } catch (err) {
+                alert('Błąd podczas szacowania posiłku.');
+            } finally {
+                hideStatus();
+            }
+        }
+
         async function eatCurrentRecipe() {
             if (!lastGeneratedRecipe) return;
             const parsed = parseNutritionFromText(lastGeneratedRecipe.calories, lastGeneratedRecipe.macros);
@@ -536,36 +545,11 @@
             alert(`Dodano do bilansu Fitatu:\n${title}\n🔥 ${parsed.kcal} kcal | B: ${parsed.p}g | T: ${parsed.f}g | W: ${parsed.c}g`);
         }
 
-        async function addManualMeal() {
-            const nameEl = document.getElementById('manualMealName');
-            const kcalEl = document.getElementById('manualKcal');
-            const pEl = document.getElementById('manualP');
-            const fEl = document.getElementById('manualF');
-            const cEl = document.getElementById('manualC');
-
-            if (!nameEl.value.trim()) return;
-
-            await addMealToFitatu(
-                nameEl.value.trim(),
-                parseInt(kcalEl.value) || 0,
-                parseInt(pEl.value) || 0,
-                parseInt(fEl.value) || 0,
-                parseInt(cEl.value) || 0
-            );
-
-            nameEl.value = '';
-            kcalEl.value = '';
-            pEl.value = '';
-            fEl.value = '';
-            cEl.value = '';
-        }
-
         async function deleteMealLog(id) {
             await fetch(`/inventory/nutrition/logs/${id}`, { method: 'DELETE' });
             loadNutritionData();
         }
 
-        // --- FUNKCJE LODÓWKI ---
         async function loadInventory() {
             const res = await fetch(`/inventory/?device_id=${deviceId}`);
             const items = await res.json();
@@ -814,7 +798,6 @@
             loadShopping();
         }
 
-        // Inicjalizacja przy starcie
         loadInventory();
         loadNutritionData();
     </script>

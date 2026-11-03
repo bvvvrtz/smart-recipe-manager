@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app import models, schemas
-from app.services.ai_service import analyze_image_for_ingredients
+from app.services.ai_service import analyze_image_for_ingredients, estimate_meal_macros
 
 router = APIRouter(prefix="/inventory", tags=["Inventory, Shopping & Nutrition"])
 
@@ -127,6 +127,23 @@ def get_meal_logs(device_id: str, date: str, db: Session = Depends(get_db)):
 @router.post("/nutrition/logs", response_model=schemas.MealLogResponse)
 def add_meal_log(log: schemas.MealLogCreate, db: Session = Depends(get_db)):
     db_log = models.MealLog(**log.model_dump())
+    db.add(db_log)
+    db.commit()
+    db.refresh(db_log)
+    return db_log
+
+@router.post("/nutrition/estimate-and-log", response_model=schemas.MealLogResponse)
+def estimate_and_log_meal(data: schemas.MealEstimateRequest, db: Session = Depends(get_db)):
+    estimated = estimate_meal_macros(data.description)
+    db_log = models.MealLog(
+        device_id=data.device_id,
+        date=data.date,
+        name=estimated.get("name", data.description),
+        calories=estimated.get("calories", 0),
+        protein=estimated.get("protein", 0),
+        fat=estimated.get("fat", 0),
+        carbs=estimated.get("carbs", 0)
+    )
     db.add(db_log)
     db.commit()
     db.refresh(db_log)

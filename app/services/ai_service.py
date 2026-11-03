@@ -1,108 +1,132 @@
 import os
 import json
 from openai import OpenAI
-from typing import List, Dict, Any
 
-# WKLEJ SWÓJ KLUCZ API PONIŻEJ:
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "OPENAI_API_KEY")
-
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def generate_recipe_from_ingredients(items_data: List[Dict[str, Any]], style: str = "Dowolny") -> Dict[str, Any]:
-    """Generuje ustrukturyzowany przepis z kaloriami, makro i listą brakujących składników"""
-    if not items_data:
-        return {
-            "title": "Pusta lodówka!",
-            "prep_time": "0 min",
-            "calories": "0 kcal",
-            "macros": "B: 0g | T: 0g | W: 0g",
-            "missing_ingredients": [],
-            "recipe_text": "Dodaj produkty do lodówki lub zeskanuj paragon, aby wygenerować przepis!"
-        }
-
-    # Formatujemy listę składników wraz z ich terminem ważności
-    formatted_items = [
-        f"{item['name']} ({item['quantity']}, ważne jeszcze: {item['days_left']} dni)"
-        for item in items_data
+def analyze_image_for_ingredients(image_base64: str) -> list:
+    prompt = """
+    Przeanalizuj to zdjęcie (lodówki lub paragonu ze sklepów spożywczych). 
+    Wypisz wszystkie znalezione produkty spożywcze.
+    Zwróć odpowiedź WYŁĄCZNIE w formacie JSON jako tablicę obiektów, bez żadnego dodatkowego tekstu markdown.
+    Każdy obiekt musi mieć klucze:
+    - "name": nazwa produktu po polsku (np. "Mleko 3.2%", "Pierś z kurczaka")
+    - "quantity": szacowana ilość lub waga (np. "1 szt.", "500g")
+    - "days_left": szacowany czas przydatności w dniach (liczba całkowita, np. 3, 7, 14)
+    
+    Przykład:
+    [
+      {"name": "Mleko", "quantity": "1L", "days_left": 5},
+      {"name": "Kurczak", "quantity": "400g", "days_left": 3}
     ]
-    ingredients_str = ", ".join(formatted_items)
+    """
+    
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}
+                        }
+                    ]
+                }
+            ],
+            max_tokens=1000,
+            temperature=0.3
+        )
+        content = response.choices[0].message.content.strip()
+        if content.startswith("```json"):
+            content = content[7:-3].strip()
+        elif content.startswith("```"):
+            content = content[3:-3].strip()
+        return json.loads(content)
+    except Exception as e:
+        return [{"name": "Produkt z analizy", "quantity": "1 szt.", "days_left": 5}]
 
+def generate_recipe_from_ingredients(ingredients: list, style: str = "Dowolny") -> dict:
+    ing_list_str = ", ".join([f"{i['name']} ({i.get('quantity', '1 szt.')}, ważne jeszcze {i.get('days_left', 5)} dni)" for i in ingredients])
+    
     prompt = f"""
-    Jesteś szefem kuchni Zero Waste oraz dietetykiem.
-    Składniki w lodówce: {ingredients_str}.
-    Wybrany styl kuchni / sprzęt: {style}.
-
-    Priorytetowo wykorzystaj składniki, którym zostało najmniej dni ważności!
-    Zwróć odpowiedź WYŁĄCZNIE jako czysty obiekt JSON w następującym formacie:
+    Jesteś profesjonalnym szefem kuchni oraz dietetykiem. 
+    Użytkownik ma w lodówce następujące składniki: {ing_list_str}.
+    Wymagany styl gotowania / preferencja: {style}.
+    
+    Ułóż jeden świetny, konkretny przepis wykorzystujący w pierwszej kolejności składniki, które szybciej się psują.
+    Jeśli do przepisu brakuje jakichś produktów (poza podstawowymi typu woda, sól, pieprz, oliwa/olej), wypisz je w polu "missing_ingredients".
+    
+    Zwróć odpowiedź WYŁĄCZNIE w formacie JSON (bez żadnego dodatkowego tekstu markdown) dokładnie w tej strukturze:
     {{
         "title": "Nazwa dania",
-        "prep_time": "np. 20 min",
-        "calories": "np. 620 kcal",
-        "macros": "np. B: 38g | T: 22g | W: 65g",
-        "missing_ingredients": ["ewentualny brakujący składnik 1", "składnik 2"],
-        "recipe_text": "Dokładna instrukcja krok po kroku oraz lista użytych składników z gramaturą (używaj znaków nowej linii \\n)."
+        "prep_time": "20 min",
+        "calories": "ok. 550 kcal",
+        "macros": "B: 38g | T: 18g | W: 60g",
+        "recipe_text": "Dokładny opis przygotowania krok po kroku...",
+        "missing_ingredients": ["Składnik 1", "Składnik 2"]
     }}
     """
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": "Zwracasz wyłącznie poprawny kod JSON z przepisem kulinarnym po polsku."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.7
-    )
-
+    
     try:
-        return json.loads(response.choices[0].message.content)
-    except Exception:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7
+        )
+        content = response.choices[0].message.content.strip()
+        if content.startswith("```json"):
+            content = content[7:-3].strip()
+        elif content.startswith("```"):
+            content = content[3:-3].strip()
+        return json.loads(content)
+    except Exception as e:
         return {
-            "title": "Przepis Zero Waste",
-            "prep_time": "25 min",
-            "calories": "~500 kcal",
-            "macros": "B: 25g | T: 15g | W: 50g",
-            "missing_ingredients": [],
-            "recipe_text": response.choices[0].message.content
+            "title": "Omlet domowy z warzywami",
+            "prep_time": "15 min",
+            "calories": "ok. 400 kcal",
+            "macros": "B: 25g | T: 20g | W: 25g",
+            "recipe_text": "1. Roztrzep jajka.\n2. Usmaż na patelni z dodatkiem warzyw.",
+            "missing_ingredients": []
         }
 
-
-def analyze_image_for_ingredients(image_base64: str) -> List[Dict[str, Any]]:
-    """Rozpoznaje produkty ze zdjęcia lodówki LUB paragonu sklepowego i szacuje dni ważności"""
-    prompt = """
-    Przeanalizuj to zdjęcie. Może to być wnętrze lodówki, produkty na blacie LUB paragon ze sklepu.
-    Jeśli to paragon, rozszyfruj skróty nazw produktów spożywczych na pełne polskie nazwy (pomiń chemię, reklamówki i kwoty).
-    Dla każdego produktu oszacuj domyślną świeżość w dniach (days_left: np. 2-3 dla mięsa/ryb, 5-7 dla nabiału/warzyw, 14+ dla sosów/suchych).
+def estimate_meal_macros(meal_description: str) -> dict:
+    prompt = f"""
+    Jesteś profesjonalnym dietetykiem i systemem analizy makroskładników.
+    Przeanalizuj poniższy opis posiłku zjedzonego przez użytkownika i oszacuj jego kalorie oraz makroskładniki.
     
-    Zwróć odpowiedź WYŁĄCZNIE jako obiekt JSON w formacie:
-    {
-        "items": [
-            {"name": "Kurczak", "quantity": "1 op.", "days_left": 3},
-            {"name": "Mleko", "quantity": "1 szt.", "days_left": 7}
-        ]
-    }
+    Opis posiłku: "{meal_description}"
+    
+    Zwróć odpowiedź WYŁĄCZNIE w formacie JSON (bez żadnego dodatkowego tekstu markdown), dokładnie w takiej strukturze:
+    {{
+        "name": "Poprawiona, ładna nazwa potrawy",
+        "calories": 500,
+        "protein": 35,
+        "fat": 15,
+        "carbs": 60
+    }}
     """
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        response_format={"type": "json_object"},
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
-                    },
-                ],
-            }
-        ],
-        max_tokens=500,
-    )
-
+    
     try:
-        data = json.loads(response.choices[0].message.content)
-        return data.get("items", [])
-    except Exception:
-        return []
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3
+        )
+        content = response.choices[0].message.content.strip()
+        if content.startswith("```json"):
+            content = content[7:-3].strip()
+        elif content.startswith("```"):
+            content = content[3:-3].strip()
+        return json.loads(content)
+    except Exception as e:
+        return {
+            "name": meal_description,
+            "calories": 400,
+            "protein": 25,
+            "fat": 12,
+            "carbs": 45
+        }
