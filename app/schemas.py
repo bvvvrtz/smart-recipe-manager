@@ -55,3 +55,42 @@ class ShoppingItemResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class NutritionGoalCreate(BaseModel):
+    device_id: str
+    calories_goal: int
+    protein_goal: int
+    fat_goal: int
+    carbs_goal: int
+
+class NutritionGoalResponse(BaseModel):
+    device_id: str
+    calories_goal: int
+    protein_goal: int
+    fat_goal: int
+    carbs_goal: int
+
+    class Config:
+        from_attributes = True
+
+class MealLogCreate(BaseModel):
+    device_id: str
+    date: str
+    name: str
+    calories: int
+    protein: int
+    fat: int
+    carbs: int
+
+class MealLogResponse(BaseModel):
+    id: int
+    device_id: str
+    date: str
+    name: str
+    calories: int
+    protein: int
+    fat: int
+    carbs: int
+
+    class Config:
+        from_attributes = True

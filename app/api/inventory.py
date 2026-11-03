@@ -6,7 +6,7 @@ from app.database import get_db
 from app import models, schemas
 from app.services.ai_service import analyze_image_for_ingredients
 
-router = APIRouter(prefix="/inventory", tags=["Inventory & Shopping"])
+router = APIRouter(prefix="/inventory", tags=["Inventory, Shopping & Nutrition"])
 
 # --- LODÓWKA ---
 @router.get("/", response_model=List[schemas.FridgeItemResponse])
@@ -84,3 +84,59 @@ def clear_shopping_list(device_id: str, db: Session = Depends(get_db)):
     db.query(models.ShoppingItem).filter(models.ShoppingItem.device_id == device_id).delete()
     db.commit()
     return {"message": "Lista zakupów wyczyszczona"}
+
+# --- FITATU: CELE I KALORIE ---
+@router.get("/nutrition/goal", response_model=schemas.NutritionGoalResponse)
+def get_nutrition_goal(device_id: str, db: Session = Depends(get_db)):
+    goal = db.query(models.NutritionGoal).filter(models.NutritionGoal.device_id == device_id).first()
+    if not goal:
+        goal = models.NutritionGoal(
+            device_id=device_id,
+            calories_goal=2400,
+            protein_goal=160,
+            fat_goal=75,
+            carbs_goal=270
+        )
+        db.add(goal)
+        db.commit()
+        db.refresh(goal)
+    return goal
+
+@router.post("/nutrition/goal", response_model=schemas.NutritionGoalResponse)
+def set_nutrition_goal(data: schemas.NutritionGoalCreate, db: Session = Depends(get_db)):
+    goal = db.query(models.NutritionGoal).filter(models.NutritionGoal.device_id == data.device_id).first()
+    if not goal:
+        goal = models.NutritionGoal(**data.model_dump())
+        db.add(goal)
+    else:
+        goal.calories_goal = data.calories_goal
+        goal.protein_goal = data.protein_goal
+        goal.fat_goal = data.fat_goal
+        goal.carbs_goal = data.carbs_goal
+    db.commit()
+    db.refresh(goal)
+    return goal
+
+@router.get("/nutrition/logs", response_model=List[schemas.MealLogResponse])
+def get_meal_logs(device_id: str, date: str, db: Session = Depends(get_db)):
+    return db.query(models.MealLog).filter(
+        models.MealLog.device_id == device_id,
+        models.MealLog.date == date
+    ).order_by(models.MealLog.id.desc()).all()
+
+@router.post("/nutrition/logs", response_model=schemas.MealLogResponse)
+def add_meal_log(log: schemas.MealLogCreate, db: Session = Depends(get_db)):
+    db_log = models.MealLog(**log.model_dump())
+    db.add(db_log)
+    db.commit()
+    db.refresh(db_log)
+    return db_log
+
+@router.delete("/nutrition/logs/{log_id}")
+def delete_meal_log(log_id: int, db: Session = Depends(get_db)):
+    db_log = db.query(models.MealLog).filter(models.MealLog.id == log_id).first()
+    if not db_log:
+        raise HTTPException(status_code=404, detail="Log not found")
+    db.delete(db_log)
+    db.commit()
+    return {"message": "Deleted"}

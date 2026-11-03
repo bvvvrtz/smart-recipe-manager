@@ -19,13 +19,13 @@
 </head>
 <body class="bg-slate-50 text-slate-800 pb-28">
 
-    <header class="bg-emerald-600 text-white pt-10 pb-5 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20">
+    <header class="bg-emerald-600 text-white pt-10 pb-4 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div>
                 <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
                     <i class="fa-solid fa-leaf"></i> Smart Fridge PRO
                 </h1>
-                <p class="text-emerald-100 text-xs mt-0.5">Prywatna lodówka & AI</p>
+                <p class="text-emerald-100 text-xs mt-0.5">Lodówka, Przepisy & Fitatu AI</p>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="window.location.reload()" title="Odśwież aplikację" class="bg-emerald-700 text-white px-3 py-2 rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center">
@@ -36,6 +36,24 @@
                     <span>Skanuj</span>
                     <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="scanImage(event)">
                 </label>
+            </div>
+        </div>
+
+        <!-- MINI PASEK FITATU W NAGŁÓWKU -->
+        <div onclick="switchTab('macro')" class="max-w-md mx-auto mt-3.5 bg-emerald-800/50 backdrop-blur-sm p-2.5 rounded-2xl cursor-pointer active:scale-[0.99] transition border border-emerald-500/30">
+            <div class="flex justify-between items-center text-xs mb-1">
+                <span class="font-bold flex items-center gap-1.5 text-emerald-50">
+                    <i class="fa-solid fa-fire text-amber-400"></i> Dzisiaj: <span id="miniKcal">0 / 2400</span> kcal
+                </span>
+                <span class="text-[11px] text-emerald-200 font-semibold flex items-center gap-2">
+                    <span>B: <b id="miniP" class="text-white">0</b>g</span>
+                    <span>T: <b id="miniF" class="text-white">0</b>g</span>
+                    <span>W: <b id="miniC" class="text-white">0</b>g</span>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </span>
+            </div>
+            <div class="w-full bg-emerald-950/50 h-2 rounded-full overflow-hidden">
+                <div id="miniKcalBar" class="bg-gradient-to-r from-amber-400 to-emerald-300 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
         </div>
     </header>
@@ -101,7 +119,14 @@
             <div id="recipeContainer" class="hidden bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
                 <div class="flex justify-between items-start gap-2">
                     <h3 id="recipeTitle" class="font-bold text-slate-800 text-lg leading-snug"></h3>
-                    <button onclick="saveCurrentRecipe()" class="bg-rose-50 text-rose-600 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 active:scale-95 transition shrink-0">
+                </div>
+
+                <!-- PRZYCISKI AKCJI PRZEPISU: ZJEDZONE & ZAPISZ -->
+                <div class="flex gap-2">
+                    <button onclick="eatCurrentRecipe()" class="flex-1 bg-emerald-600 text-white py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
+                        <i class="fa-solid fa-utensils"></i> Zjedzone! (+Makro)
+                    </button>
+                    <button onclick="saveCurrentRecipe()" class="bg-rose-50 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
                         <i class="fa-solid fa-heart"></i> Zapisz
                     </button>
                 </div>
@@ -127,7 +152,123 @@
             </div>
         </div>
 
-        <!-- ================= ZAKŁADKA 2: ZAKUPY ================= -->
+        <!-- ================= ZAKŁADKA 2: MAKRO & FITATU ================= -->
+        <div id="tab-macro" class="hidden space-y-5">
+            <!-- GŁÓWNA KARTA FITATU -->
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-emerald-600"></i> Dzienny Bilans
+                        </h2>
+                        <p id="todayDateDisplay" class="text-xs text-slate-400"></p>
+                    </div>
+                    <button onclick="toggleGoalEditor()" class="text-xs bg-slate-100 text-slate-700 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 active:scale-95 transition">
+                        <i class="fa-solid fa-sliders"></i> Zmień cel
+                    </button>
+                </div>
+
+                <!-- GŁÓWNY PASEK KALORII -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <div class="flex justify-between items-baseline mb-1.5">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Kalorie</span>
+                        <span class="text-lg font-extrabold text-slate-800">
+                            <span id="mainKcalEaten" class="text-emerald-600">0</span> 
+                            <span class="text-xs font-normal text-slate-400">/ <span id="mainKcalGoal">2400</span> kcal</span>
+                        </span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                        <div id="mainKcalBar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <p id="kcalRemainingText" class="text-[11px] text-slate-500 mt-1.5 text-right font-medium"></p>
+                </div>
+
+                <!-- 3 KOLUMNY MAKRO: BIAŁKO, TŁUSZCZE, WĘGLE -->
+                <div class="grid grid-cols-3 gap-2.5">
+                    <!-- Białko -->
+                    <div class="bg-blue-50/60 p-3 rounded-2xl border border-blue-100">
+                        <div class="text-xs font-bold text-blue-800 mb-1">Białko (B)</div>
+                        <div class="text-sm font-extrabold text-blue-900 mb-1.5">
+                            <span id="pEaten">0</span><span class="text-[11px] font-normal text-blue-500"> / <span id="pGoal">160</span>g</span>
+                        </div>
+                        <div class="w-full bg-blue-200/60 h-2 rounded-full overflow-hidden">
+                            <div id="pBar" class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- Tłuszcze -->
+                    <div class="bg-amber-50/60 p-3 rounded-2xl border border-amber-100">
+                        <div class="text-xs font-bold text-amber-800 mb-1">Tłuszcze (T)</div>
+                        <div class="text-sm font-extrabold text-amber-900 mb-1.5">
+                            <span id="fEaten">0</span><span class="text-[11px] font-normal text-amber-600"> / <span id="fGoal">75</span>g</span>
+                        </div>
+                        <div class="w-full bg-amber-200/60 h-2 rounded-full overflow-hidden">
+                            <div id="fBar" class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- Węglowodany -->
+                    <div class="bg-purple-50/60 p-3 rounded-2xl border border-purple-100">
+                        <div class="text-xs font-bold text-purple-800 mb-1">Węgle (W)</div>
+                        <div class="text-sm font-extrabold text-purple-900 mb-1.5">
+                            <span id="cEaten">0</span><span class="text-[11px] font-normal text-purple-500"> / <span id="cGoal">270</span>g</span>
+                        </div>
+                        <div class="w-full bg-purple-200/60 h-2 rounded-full overflow-hidden">
+                            <div id="cBar" class="bg-purple-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EDYTOR CELÓW (UKRYTY DOMYŚLNIE) -->
+                <div id="goalEditor" class="hidden pt-3 border-t border-slate-100 space-y-3">
+                    <h3 class="text-xs font-bold uppercase text-slate-400">Ustaw swoje dzienne zapotrzebowanie</h3>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <label class="font-semibold text-slate-600">Kalorie (kcal)</label>
+                            <input type="number" id="inputGoalKcal" class="w-full bg-slate-100 px-3 py-2 rounded-xl mt-1 font-bold">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-blue-700">Białko (g)</label>
+                            <input type="number" id="inputGoalP" class="w-full bg-slate-100 px-3 py-2 rounded-xl mt-1 font-bold">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-amber-700">Tłuszcze (g)</label>
+                            <input type="number" id="inputGoalF" class="w-full bg-slate-100 px-3 py-2 rounded-xl mt-1 font-bold">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-purple-700">Węglowodany (g)</label>
+                            <input type="number" id="inputGoalC" class="w-full bg-slate-100 px-3 py-2 rounded-xl mt-1 font-bold">
+                        </div>
+                    </div>
+                    <button onclick="saveNutritionGoal()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs shadow active:scale-95 transition">
+                        Zapisz nowy cel
+                    </button>
+                </div>
+            </div>
+
+            <!-- RĘCZNE DODAWANIE POSIŁKU -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Szybkie dodanie posiłku</h3>
+                <input type="text" id="manualMealName" placeholder="Nazwa (np. Shake białkowy, Kebab...)" class="w-full bg-slate-100 px-3 py-2.5 rounded-xl text-sm focus:outline-none">
+                <div class="grid grid-cols-4 gap-1.5">
+                    <input type="number" id="manualKcal" placeholder="kcal" class="bg-slate-100 px-2.5 py-2 rounded-xl text-xs text-center font-semibold focus:outline-none">
+                    <input type="number" id="manualP" placeholder="B (g)" class="bg-blue-50 px-2.5 py-2 rounded-xl text-xs text-center font-semibold text-blue-800 focus:outline-none">
+                    <input type="number" id="manualF" placeholder="T (g)" class="bg-amber-50 px-2.5 py-2 rounded-xl text-xs text-center font-semibold text-amber-800 focus:outline-none">
+                    <input type="number" id="manualC" placeholder="W (g)" class="bg-purple-50 px-2.5 py-2 rounded-xl text-xs text-center font-semibold text-purple-800 focus:outline-none">
+                </div>
+                <button onclick="addManualMeal()" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs active:scale-95 transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i> Dodaj do dzisiejszego bilansu
+                </button>
+            </div>
+
+            <!-- LISTA ZJEDZONYCH POSIŁKÓW DZISIAJ -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-utensils text-emerald-600"></i> Dzisiaj zjedzone
+                </h3>
+                <ul id="mealLogsList" class="divide-y divide-slate-100 text-sm space-y-2"></ul>
+            </div>
+        </div>
+
+        <!-- ================= ZAKŁADKA 3: ZAKUPY ================= -->
         <div id="tab-shopping" class="hidden space-y-4">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dodaj do kupienia</h2>
@@ -150,7 +291,7 @@
             </div>
         </div>
 
-        <!-- ================= ZAKŁADKA 3: ZAPISANE ================= -->
+        <!-- ================= ZAKŁADKA 4: ZAPISANE ================= -->
         <div id="tab-saved" class="hidden space-y-4">
             <h2 class="text-sm font-bold text-slate-700 px-1 flex items-center gap-2">
                 <i class="fa-solid fa-book-bookmark text-emerald-600"></i> Twoje Ulubione Przepisy
@@ -160,11 +301,16 @@
 
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 py-2.5 z-30">
+    <!-- DOLNA NAWIGACJA (4 ZAKŁADKI) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 z-30">
         <div class="max-w-md mx-auto flex justify-around items-center text-xs font-semibold">
             <button onclick="switchTab('fridge')" id="nav-fridge" class="flex flex-col items-center gap-1 text-emerald-600">
                 <i class="fa-solid fa-kitchen-set text-lg"></i>
-                <span>Lodówka & AI</span>
+                <span>Lodówka</span>
+            </button>
+            <button onclick="switchTab('macro')" id="nav-macro" class="flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa-solid fa-fire-flame-curved text-lg"></i>
+                <span>Makro</span>
             </button>
             <button onclick="switchTab('shopping')" id="nav-shopping" class="flex flex-col items-center gap-1 text-slate-400">
                 <i class="fa-solid fa-cart-shopping text-lg"></i>
@@ -186,9 +332,18 @@
 
         let selectedStyle = 'Dowolny Zero Waste';
         let lastGeneratedRecipe = null;
+        let currentGoals = { calories_goal: 2400, protein_goal: 160, fat_goal: 75, carbs_goal: 270 };
+
+        function getTodayStr() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
         function switchTab(tab) {
-            ['fridge', 'shopping', 'saved'].forEach(t => {
+            ['fridge', 'macro', 'shopping', 'saved'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).className = 'flex flex-col items-center gap-1 text-slate-400';
             });
@@ -196,6 +351,7 @@
             document.getElementById(`nav-${tab}`).className = 'flex flex-col items-center gap-1 text-emerald-600';
 
             if (tab === 'fridge') loadInventory();
+            if (tab === 'macro') loadNutritionData();
             if (tab === 'shopping') loadShopping();
             if (tab === 'saved') loadSavedRecipes();
         }
@@ -216,6 +372,200 @@
             document.getElementById('statusAlert').classList.add('hidden');
         }
 
+        // --- FUNKCJE FITATU / MAKRO ---
+        function parseNutritionFromText(caloriesStr, macrosStr) {
+            let kcal = 0, p = 0, f = 0, c = 0;
+            if (caloriesStr) {
+                const kcalMatch = String(caloriesStr).match(/(\d+)/);
+                if (kcalMatch) kcal = parseInt(kcalMatch[1]);
+            }
+            if (macrosStr) {
+                const str = String(macrosStr);
+                const pMatch = str.match(/b(?:iałko)?\s*[:=-]?\s*(\d+)/i);
+                const fMatch = str.match(/t(?:łuszcze|łuszcz)?\s*[:=-]?\s*(\d+)/i);
+                const cMatch = str.match(/w(?:ęglowodany|ęgle)?\s*[:=-]?\s*(\d+)/i);
+
+                if (pMatch || fMatch || cMatch) {
+                    if (pMatch) p = parseInt(pMatch[1]);
+                    if (fMatch) f = parseInt(fMatch[1]);
+                    if (cMatch) c = parseInt(cMatch[1]);
+                } else {
+                    const nums = str.match(/\d+/g);
+                    if (nums && nums.length >= 3) {
+                        p = parseInt(nums[0]);
+                        f = parseInt(nums[1]);
+                        c = parseInt(nums[2]);
+                    }
+                }
+            }
+            return { kcal, p, f, c };
+        }
+
+        async function loadNutritionData() {
+            const today = getTodayStr();
+            document.getElementById('todayDateDisplay').innerText = `Dzisiaj (${today})`;
+
+            const [goalRes, logsRes] = await Promise.all([
+                fetch(`/inventory/nutrition/goal?device_id=${deviceId}`),
+                fetch(`/inventory/nutrition/logs?device_id=${deviceId}&date=${today}`)
+            ]);
+
+            currentGoals = await goalRes.json();
+            const logs = await logsRes.json();
+
+            let totalKcal = 0, totalP = 0, totalF = 0, totalC = 0;
+            const listEl = document.getElementById('mealLogsList');
+            listEl.innerHTML = '';
+
+            if (logs.length === 0) {
+                listEl.innerHTML = '<li class="text-slate-400 text-center py-5 text-xs">Brak wpisanych posiłków na dziś.</li>';
+            } else {
+                logs.forEach(item => {
+                    totalKcal += item.calories;
+                    totalP += item.protein;
+                    totalF += item.fat;
+                    totalC += item.carbs;
+
+                    listEl.innerHTML += `
+                        <li class="py-2.5 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-slate-800 text-sm">${item.name}</div>
+                                <div class="flex gap-2 text-[11px] font-semibold mt-0.5">
+                                    <span class="text-amber-600">🔥 ${item.calories} kcal</span>
+                                    <span class="text-blue-600">B: ${item.protein}g</span>
+                                    <span class="text-amber-700">T: ${item.fat}g</span>
+                                    <span class="text-purple-600">W: ${item.carbs}g</span>
+                                </div>
+                            </div>
+                            <button onclick="deleteMealLog(${item.id})" class="text-slate-300 hover:text-red-500 p-1.5">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </li>`;
+                });
+            }
+
+            // Aktualizacja pasków w nagłówku (Mini Fitatu)
+            document.getElementById('miniKcal').innerText = `${totalKcal} / ${currentGoals.calories_goal}`;
+            document.getElementById('miniP').innerText = totalP;
+            document.getElementById('miniF').innerText = totalF;
+            document.getElementById('miniC').innerText = totalC;
+            const miniPct = Math.min(100, Math.round((totalKcal / currentGoals.calories_goal) * 100));
+            document.getElementById('miniKcalBar').style.width = `${miniPct}%`;
+
+            // Aktualizacja głównej karty Makro
+            document.getElementById('mainKcalEaten').innerText = totalKcal;
+            document.getElementById('mainKcalGoal').innerText = currentGoals.calories_goal;
+            document.getElementById('mainKcalBar').style.width = `${miniPct}%`;
+
+            const diff = currentGoals.calories_goal - totalKcal;
+            document.getElementById('kcalRemainingText').innerText = diff >= 0 
+                ? `Pozostało do celu: ${diff} kcal` 
+                : `Przekroczono cel o: ${Math.abs(diff)} kcal`;
+
+            document.getElementById('pEaten').innerText = totalP;
+            document.getElementById('pGoal').innerText = currentGoals.protein_goal;
+            document.getElementById('pBar').style.width = `${Math.min(100, Math.round((totalP / currentGoals.protein_goal) * 100))}%`;
+
+            document.getElementById('fEaten').innerText = totalF;
+            document.getElementById('fGoal').innerText = currentGoals.fat_goal;
+            document.getElementById('fBar').style.width = `${Math.min(100, Math.round((totalF / currentGoals.fat_goal) * 100))}%`;
+
+            document.getElementById('cEaten').innerText = totalC;
+            document.getElementById('cGoal').innerText = currentGoals.carbs_goal;
+            document.getElementById('cBar').style.width = `${Math.min(100, Math.round((totalC / currentGoals.carbs_goal) * 100))}%`;
+
+            // Wypełnienie formularza edycji celów
+            document.getElementById('inputGoalKcal').value = currentGoals.calories_goal;
+            document.getElementById('inputGoalP').value = currentGoals.protein_goal;
+            document.getElementById('inputGoalF').value = currentGoals.fat_goal;
+            document.getElementById('inputGoalC').value = currentGoals.carbs_goal;
+        }
+
+        function toggleGoalEditor() {
+            document.getElementById('goalEditor').classList.toggle('hidden');
+        }
+
+        async function saveNutritionGoal() {
+            const kcal = parseInt(document.getElementById('inputGoalKcal').value) || 2400;
+            const p = parseInt(document.getElementById('inputGoalP').value) || 160;
+            const f = parseInt(document.getElementById('inputGoalF').value) || 75;
+            const c = parseInt(document.getElementById('inputGoalC').value) || 270;
+
+            await fetch('/inventory/nutrition/goal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    device_id: deviceId,
+                    calories_goal: kcal,
+                    protein_goal: p,
+                    fat_goal: f,
+                    carbs_goal: c
+                })
+            });
+            document.getElementById('goalEditor').classList.add('hidden');
+            loadNutritionData();
+        }
+
+        async function addMealToFitatu(name, kcal, p, f, c) {
+            await fetch('/inventory/nutrition/logs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    device_id: deviceId,
+                    date: getTodayStr(),
+                    name: name,
+                    calories: kcal,
+                    protein: p,
+                    fat: f,
+                    carbs: c
+                })
+            });
+            await loadNutritionData();
+        }
+
+        async function eatCurrentRecipe() {
+            if (!lastGeneratedRecipe) return;
+            const parsed = parseNutritionFromText(lastGeneratedRecipe.calories, lastGeneratedRecipe.macros);
+            await addMealToFitatu(lastGeneratedRecipe.title, parsed.kcal, parsed.p, parsed.f, parsed.c);
+            alert(`Dodano do bilansu Fitatu:\n${lastGeneratedRecipe.title}\n🔥 ${parsed.kcal} kcal | B: ${parsed.p}g | T: ${parsed.f}g | W: ${parsed.c}g`);
+        }
+
+        async function eatSavedRecipe(title, caloriesStr, macrosStr) {
+            const parsed = parseNutritionFromText(caloriesStr, macrosStr);
+            await addMealToFitatu(title, parsed.kcal, parsed.p, parsed.f, parsed.c);
+            alert(`Dodano do bilansu Fitatu:\n${title}\n🔥 ${parsed.kcal} kcal | B: ${parsed.p}g | T: ${parsed.f}g | W: ${parsed.c}g`);
+        }
+
+        async function addManualMeal() {
+            const nameEl = document.getElementById('manualMealName');
+            const kcalEl = document.getElementById('manualKcal');
+            const pEl = document.getElementById('manualP');
+            const fEl = document.getElementById('manualF');
+            const cEl = document.getElementById('manualC');
+
+            if (!nameEl.value.trim()) return;
+
+            await addMealToFitatu(
+                nameEl.value.trim(),
+                parseInt(kcalEl.value) || 0,
+                parseInt(pEl.value) || 0,
+                parseInt(fEl.value) || 0,
+                parseInt(cEl.value) || 0
+            );
+
+            nameEl.value = '';
+            kcalEl.value = '';
+            pEl.value = '';
+            fEl.value = '';
+            cEl.value = '';
+        }
+
+        async function deleteMealLog(id) {
+            await fetch(`/inventory/nutrition/logs/${id}`, { method: 'DELETE' });
+            loadNutritionData();
+        }
+
+        // --- FUNKCJE LODÓWKI ---
         async function loadInventory() {
             const res = await fetch(`/inventory/?device_id=${deviceId}`);
             const items = await res.json();
@@ -392,17 +742,24 @@
             }
 
             recipes.forEach(r => {
+                const safeTitle = r.title.replace(/'/g, "\\'");
+                const safeCal = (r.calories || '').replace(/'/g, "\\'");
+                const safeMac = (r.macros || '').replace(/'/g, "\\'");
+
                 container.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-2">
-                        <div class="flex justify-between items-start">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-2.5">
+                        <div class="flex justify-between items-start gap-2">
                             <h3 class="font-bold text-slate-800 text-base">${r.title}</h3>
-                            <button onclick="deleteSavedRecipe(${r.id})" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+                            <button onclick="deleteSavedRecipe(${r.id})" class="text-slate-300 hover:text-red-500 p-1"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                         <div class="flex flex-wrap gap-1.5 text-[11px] font-bold">
                             <span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">${r.calories}</span>
                             <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">${r.prep_time}</span>
                             <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">${r.macros}</span>
                         </div>
+                        <button onclick="eatSavedRecipe('${safeTitle}', '${safeCal}', '${safeMac}')" class="w-full bg-emerald-50 text-emerald-700 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+                            <i class="fa-solid fa-utensils"></i> Zjedzone! (+Makro do Fitatu)
+                        </button>
                         <p class="text-xs text-slate-600 whitespace-pre-line pt-2 border-t border-slate-50">${r.content}</p>
                     </div>`;
             });
@@ -457,7 +814,9 @@
             loadShopping();
         }
 
+        // Inicjalizacja przy starcie
         loadInventory();
+        loadNutritionData();
     </script>
 </body>
 </html>
