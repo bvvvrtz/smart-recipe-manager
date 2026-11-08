@@ -51,7 +51,7 @@
         <span id="toastText" class="text-sm font-semibold whitespace-pre-line leading-tight"></span>
     </div>
 
-    <!-- NOWY SYSTEM MODALI (Własne komunikaty zamiast systemowego alert() ) -->
+    <!-- NOWY SYSTEM MODALI -->
     <div id="customModalOverlay" class="hidden fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 opacity-0 transition-opacity duration-200">
         <div id="customModalBox" class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl transform scale-95 transition-transform duration-200 text-center">
             <div class="mb-4">
@@ -89,7 +89,7 @@
                 <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
                     <i class="fa-solid fa-leaf"></i> Smart Fridge PRO
                 </h1>
-                <p class="text-white/80 text-xs mt-0.5">Lodówka, Przepisy & Fitatu AI</p>
+                <p class="text-white/80 text-xs mt-0.5">Lodówka, Przepisy & Makro AI</p>
             </div>
             <div class="flex items-center gap-2">
                 <label title="Wybierz własny kolor motywu" class="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center cursor-pointer relative">
@@ -211,7 +211,7 @@
             </div>
         </div>
 
-        <!-- ================= ZAKŁADKA 2: MAKRO & FITATU ================= -->
+        <!-- ================= ZAKŁADKA 2: MAKRO ================= -->
         <div id="tab-macro" class="hidden space-y-5">
             <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
                 <div class="flex justify-between items-center">
@@ -662,7 +662,7 @@
             showToast("Zaktualizowano cel kaloryczny");
         }
 
-        async function addMealToFitatu(name, kcal, p, f, c) {
+        async function addMealToMacro(name, kcal, p, f, c) {
             await fetch('/inventory/nutrition/logs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -717,14 +717,14 @@
         async function eatCurrentRecipe() {
             if (!lastGeneratedRecipe) return;
             const parsed = parseNutritionFromText(lastGeneratedRecipe.calories, lastGeneratedRecipe.macros);
-            await addMealToFitatu(lastGeneratedRecipe.title, parsed.kcal, parsed.p, parsed.f, parsed.c);
-            showToast(`Dodano do bilansu Fitatu!\n+${parsed.kcal} kcal`);
+            await addMealToMacro(lastGeneratedRecipe.title, parsed.kcal, parsed.p, parsed.f, parsed.c);
+            showToast(`Dodano do Makro!\n+${parsed.kcal} kcal`);
         }
 
         async function eatSavedRecipe(title, caloriesStr, macrosStr) {
             const parsed = parseNutritionFromText(caloriesStr, macrosStr);
-            await addMealToFitatu(title, parsed.kcal, parsed.p, parsed.f, parsed.c);
-            showToast(`Dodano do bilansu Fitatu!\n+${parsed.kcal} kcal`);
+            await addMealToMacro(title, parsed.kcal, parsed.p, parsed.f, parsed.c);
+            showToast(`Dodano do Makro!\n+${parsed.kcal} kcal`);
         }
 
         async function deleteMealLog(id) {
@@ -953,7 +953,7 @@
                             <span class="theme-badge px-2 py-0.5 rounded">${r.macros}</span>
                         </div>
                         <button onclick="eatSavedRecipe('${safeTitle}', '${safeCal}', '${safeMac}')" class="w-full theme-badge font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
-                            <i class="fa-solid fa-utensils"></i> Zjedzone! (+Makro do Fitatu)
+                            <i class="fa-solid fa-utensils"></i> Zjedzone! (+Dodaj Makro)
                         </button>
                         <p class="text-xs text-slate-600 whitespace-pre-line pt-2 border-t border-slate-50">${r.content}</p>
                     </div>`;
