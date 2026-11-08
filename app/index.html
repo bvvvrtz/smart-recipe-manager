@@ -45,7 +45,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 pb-28">
 
-    <!-- NOWY SYSTEM TOASTÓW (Znikające dymki powiadomień) -->
+    <!-- NOWY SYSTEM TOASTÓW -->
     <div id="toastNotification" class="fixed top-4 left-1/2 -translate-x-1/2 z-[150] transition-all duration-300 transform -translate-y-24 opacity-0 flex items-center gap-3 bg-slate-800 text-white px-5 py-3 rounded-2xl shadow-2xl max-w-sm w-[90%] pointer-events-none">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
         <span id="toastText" class="text-sm font-semibold whitespace-pre-line leading-tight"></span>
@@ -160,20 +160,34 @@
             </div>
 
             <div class="theme-bg-grad p-5 rounded-3xl text-white shadow-lg transition-colors duration-200">
-                <h2 class="text-base font-bold flex items-center gap-2">
+                <h2 class="text-base font-bold flex items-center gap-2 mb-4">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Szef Kuchni AI
                 </h2>
-                <p class="text-white/80 text-xs mt-0.5 mb-3">Wybierz styl lub sprzęt:</p>
                 
-                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2" id="styleChips">
-                    <button onclick="selectStyle('Dowolny Zero Waste', this)" class="style-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">🎲 Dowolny</button>
-                    <button onclick="selectStyle('Kuchnia Meksykańska (Burrito, Tacos, Bowl)', this)" class="style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🌮 Meksykańska</button>
-                    <button onclick="selectStyle('Kuchnia Włoska (Makarony, Sosy)', this)" class="style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍝 Włoska</button>
-                    <button onclick="selectStyle('Danie z Airfryera', this)" class="style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍟 Airfryer</button>
-                    <button onclick="selectStyle('Szybkie do 15 minut (Wysokie Białko)', this)" class="style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">⚡ Szybkie & High Protein</button>
+                <!-- SEKCJA 1: STYL / KUCHNIA -->
+                <p class="text-white/80 text-[11px] uppercase font-bold tracking-wider mb-2"><i class="fa-solid fa-utensils"></i> Wybierz Styl Posiłku</p>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2" id="cuisineChips">
+                    <button onclick="selectCuisine('Dowolny / Mix z lodówki', this)" class="cuisine-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">🎲 Dowolna</button>
+                    <button onclick="selectCuisine('Kuchnia Meksykańska (Tacos, Burrito)', this)" class="cuisine-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🌮 Meksykańska</button>
+                    <button onclick="selectCuisine('Kuchnia Włoska (Makarony, Sosy)', this)" class="cuisine-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍝 Włoska</button>
+                    <button onclick="selectCuisine('Tradycyjny Polski Obiad', this)" class="cuisine-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🥔 Polska</button>
+                    <button onclick="selectCuisine('Kuchnia Azjatycka (Wok, Ryż)', this)" class="cuisine-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🥢 Azjatycka</button>
+                    <button onclick="selectCuisine('Wysokie Białko / Fit (Siłownia)', this)" class="cuisine-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">💪 Fit / Białko</button>
+                    <button onclick="selectCuisine('Comfort Food / Fast Food domowy', this)" class="cuisine-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍔 Comfort Food</button>
                 </div>
 
-                <button onclick="generateRecipe()" class="w-full bg-white text-slate-900 font-bold py-3 rounded-xl shadow active:scale-95 transition flex justify-center items-center gap-2">
+                <!-- SEKCJA 2: SPRZĘT -->
+                <p class="text-white/80 text-[11px] uppercase font-bold tracking-wider mb-2 mt-2"><i class="fa-solid fa-plug"></i> Dostępny Sprzęt</p>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-4" id="equipmentChips">
+                    <button onclick="selectEquipment('Dowolny standardowy sprzęt', this)" class="eq-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">🍳 Dowolny</button>
+                    <button onclick="selectEquipment('Tylko Airfryer', this)" class="eq-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍟 Airfryer</button>
+                    <button onclick="selectEquipment('Piekarnik', this)" class="eq-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🔥 Piekarnik</button>
+                    <button onclick="selectEquipment('Jednogarnkowe / Tylko Patelnia', this)" class="eq-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🥘 Tylko Patelnia</button>
+                    <button onclick="selectEquipment('Thermomix / Wielofunkcyjny robot', this)" class="eq-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍲 Thermomix</button>
+                    <button onclick="selectEquipment('Tylko Mikrofalówka (błyskawiczne)', this)" class="eq-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">⚡ Mikrofala</button>
+                </div>
+
+                <button onclick="generateRecipe()" class="w-full bg-white text-slate-900 font-bold py-3.5 rounded-xl shadow-md active:scale-95 transition flex justify-center items-center gap-2">
                     <i class="fa-solid fa-utensils"></i> Wygeneruj Przepis!
                 </button>
             </div>
@@ -376,7 +390,10 @@
             localStorage.setItem('smart_fridge_device_id', deviceId);
         }
 
-        let selectedStyle = 'Dowolny Zero Waste';
+        // ZMIENNE DO NOWEGO KREATORA PRZEPISÓW
+        let selectedCuisine = 'Dowolny / Mix z lodówki';
+        let selectedEquipment = 'Dowolny standardowy sprzęt';
+        
         let lastGeneratedRecipe = null;
         let currentGoals = { calories_goal: 2400, protein_goal: 160, fat_goal: 75, carbs_goal: 270 };
 
@@ -488,12 +505,21 @@
             if (tab === 'saved') loadSavedRecipes();
         }
 
-        function selectStyle(style, btn) {
-            selectedStyle = style;
-            document.querySelectorAll('.style-chip').forEach(el => {
-                el.className = 'style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap';
+        // --- FUNKCJE WYBORU KUCHNI I SPRZĘTU ---
+        function selectCuisine(cuisine, btn) {
+            selectedCuisine = cuisine;
+            document.querySelectorAll('.cuisine-chip').forEach(el => {
+                el.className = 'cuisine-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap';
             });
-            btn.className = 'style-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm';
+            btn.className = 'cuisine-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm';
+        }
+
+        function selectEquipment(eq, btn) {
+            selectedEquipment = eq;
+            document.querySelectorAll('.eq-chip').forEach(el => {
+                el.className = 'eq-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap';
+            });
+            btn.className = 'eq-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm';
         }
 
         function showScanStatus(text) {
@@ -852,13 +878,18 @@
             }
         }
 
+        // --- ZMODYFIKOWANE WYSYŁANIE DO API (POŁĄCZONY STYL I SPRZĘT) ---
         async function generateRecipe() {
             showRecipeStatus(`Szef Kuchni AI miksuje przepis...`);
+            
+            // Łączymy dwa wybory w jedno zdanie dla backendu
+            const combinedStyle = `Klimat: ${selectedCuisine} | Użyty sprzęt: ${selectedEquipment}`;
+
             try {
                 const res = await fetch('/recipes/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ device_id: deviceId, style: selectedStyle })
+                    body: JSON.stringify({ device_id: deviceId, style: combinedStyle })
                 });
                 const data = await res.json();
                 lastGeneratedRecipe = data;
