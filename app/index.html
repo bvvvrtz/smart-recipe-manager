@@ -27,14 +27,12 @@
         .theme-text { color: var(--app-theme) !important; }
         .theme-badge { background-color: var(--app-theme-light) !important; color: var(--app-theme) !important; }
 
-        /* ANIMACJA MÓZGU (Skanowanie i szacowanie) */
         @keyframes brainBreathe {
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--app-theme)); }
             50% { transform: scale(1.15); filter: drop-shadow(0 0 35px var(--app-theme)); }
         }
         .brain-breathe { animation: brainBreathe 2s ease-in-out infinite; }
 
-        /* ANIMACJA BLENDERA (Szef Kuchni) */
         @keyframes blenderMix {
             0%, 100% { transform: translateY(0) rotate(0deg); filter: drop-shadow(0 0 10px var(--app-theme)); }
             20% { transform: translateY(-5px) rotate(4deg); filter: drop-shadow(0 0 30px var(--app-theme)); }
@@ -46,6 +44,24 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 pb-28">
+
+    <!-- NOWY SYSTEM TOASTÓW (Znikające dymki powiadomień) -->
+    <div id="toastNotification" class="fixed top-4 left-1/2 -translate-x-1/2 z-[150] transition-all duration-300 transform -translate-y-24 opacity-0 flex items-center gap-3 bg-slate-800 text-white px-5 py-3 rounded-2xl shadow-2xl max-w-sm w-[90%] pointer-events-none">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+        <span id="toastText" class="text-sm font-semibold whitespace-pre-line leading-tight"></span>
+    </div>
+
+    <!-- NOWY SYSTEM MODALI (Własne komunikaty zamiast systemowego alert() ) -->
+    <div id="customModalOverlay" class="hidden fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 opacity-0 transition-opacity duration-200">
+        <div id="customModalBox" class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl transform scale-95 transition-transform duration-200 text-center">
+            <div class="mb-4">
+                <i id="customModalIcon" class="fa-solid fa-circle-info text-5xl theme-text"></i>
+            </div>
+            <h3 id="customModalTitle" class="text-lg font-bold text-slate-800 mb-2 leading-tight"></h3>
+            <p id="customModalMessage" class="text-sm text-slate-600 mb-6 whitespace-pre-line leading-relaxed"></p>
+            <div class="flex gap-3 justify-center" id="customModalButtons"></div>
+        </div>
+    </div>
 
     <!-- MODAL SKANOWANIA (MÓZG) -->
     <div id="aiScanOverlay" class="hidden fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-md flex-col items-center justify-center transition-all duration-300">
@@ -111,7 +127,6 @@
     </header>
 
     <main class="max-w-md mx-auto px-4 mt-5">
-
         <!-- ================= ZAKŁADKA 1: LODÓWKA ================= -->
         <div id="tab-fridge" class="space-y-5">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
@@ -365,6 +380,75 @@
         let lastGeneratedRecipe = null;
         let currentGoals = { calories_goal: 2400, protein_goal: 160, fat_goal: 75, carbs_goal: 270 };
 
+        // --- CUSTOM TOASTS & MODALS ---
+        let toastTimeout;
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const icon = document.getElementById('toastIcon');
+            document.getElementById('toastText').innerText = message;
+            
+            if (type === 'error') {
+                icon.className = 'fa-solid fa-circle-exclamation text-rose-400 text-xl';
+            } else if (type === 'info') {
+                icon.className = 'fa-solid fa-circle-info text-blue-400 text-xl';
+            } else {
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-xl';
+            }
+
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        let confirmCallback = null;
+        function closeCustomModal() {
+            const overlay = document.getElementById('customModalOverlay');
+            const box = document.getElementById('customModalBox');
+            overlay.classList.remove('opacity-100');
+            box.classList.remove('scale-100');
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }, 200);
+        }
+
+        function showCustomModal({title, message, type = 'alert', icon = 'fa-solid fa-circle-info theme-text', onConfirm = null}) {
+            const overlay = document.getElementById('customModalOverlay');
+            const box = document.getElementById('customModalBox');
+            
+            document.getElementById('customModalIcon').className = icon + " text-5xl mb-2";
+            document.getElementById('customModalTitle').innerText = title;
+            document.getElementById('customModalMessage').innerText = message;
+            
+            const btnContainer = document.getElementById('customModalButtons');
+            btnContainer.innerHTML = '';
+
+            if (type === 'confirm') {
+                confirmCallback = onConfirm;
+                btnContainer.innerHTML = `
+                    <button onclick="closeCustomModal()" class="flex-1 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-sm active:scale-95 transition">Anuluj</button>
+                    <button onclick="confirmCallback(); closeCustomModal();" class="flex-1 theme-bg text-white font-bold py-2.5 rounded-xl text-sm active:scale-95 transition shadow-md">Potwierdź</button>
+                `;
+            } else {
+                btnContainer.innerHTML = `
+                    <button onclick="closeCustomModal()" class="w-full theme-bg text-white font-bold py-2.5 rounded-xl text-sm active:scale-95 transition shadow-md">Zrozumiałem</button>
+                `;
+            }
+
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            setTimeout(() => {
+                overlay.classList.add('opacity-100');
+                box.classList.add('scale-100');
+            }, 10);
+        }
+        // ---------------------------------
+
         function applyCustomTheme(hexColor) {
             localStorage.setItem('smart_fridge_custom_theme', hexColor);
             document.documentElement.style.setProperty('--app-theme', hexColor);
@@ -412,7 +496,6 @@
             btn.className = 'style-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm';
         }
 
-        // FUNKCJE WYŚWIETLAJĄCE ANIMACJE
         function showScanStatus(text) {
             const overlay = document.getElementById('aiScanOverlay');
             const textEl = document.getElementById('aiScanText');
@@ -576,6 +659,7 @@
             });
             document.getElementById('goalEditor').classList.add('hidden');
             loadNutritionData();
+            showToast("Zaktualizowano cel kaloryczny");
         }
 
         async function addMealToFitatu(name, kcal, p, f, c) {
@@ -617,10 +701,14 @@
                 await loadNutritionData();
                 
                 setTimeout(() => {
-                    alert(`AI oszacowało posiłek:\n${data.name}\n🔥 ${data.calories} kcal | B: ${data.protein}g | T: ${data.fat}g | W: ${data.carbs}g`);
+                    showCustomModal({
+                        title: 'Sukces AI!',
+                        message: `Oszacowano posiłek:\n${data.name}\n\n🔥 ${data.calories} kcal\nB: ${data.protein}g | T: ${data.fat}g | W: ${data.carbs}g`,
+                        icon: 'fa-solid fa-fire text-amber-500'
+                    });
                 }, 300);
             } catch (err) {
-                alert('Błąd podczas szacowania posiłku.');
+                showToast('Błąd podczas szacowania posiłku', 'error');
             } finally {
                 hideScanStatus();
             }
@@ -630,18 +718,19 @@
             if (!lastGeneratedRecipe) return;
             const parsed = parseNutritionFromText(lastGeneratedRecipe.calories, lastGeneratedRecipe.macros);
             await addMealToFitatu(lastGeneratedRecipe.title, parsed.kcal, parsed.p, parsed.f, parsed.c);
-            alert(`Dodano do bilansu Fitatu:\n${lastGeneratedRecipe.title}\n🔥 ${parsed.kcal} kcal | B: ${parsed.p}g | T: ${parsed.f}g | W: ${parsed.c}g`);
+            showToast(`Dodano do bilansu Fitatu!\n+${parsed.kcal} kcal`);
         }
 
         async function eatSavedRecipe(title, caloriesStr, macrosStr) {
             const parsed = parseNutritionFromText(caloriesStr, macrosStr);
             await addMealToFitatu(title, parsed.kcal, parsed.p, parsed.f, parsed.c);
-            alert(`Dodano do bilansu Fitatu:\n${title}\n🔥 ${parsed.kcal} kcal | B: ${parsed.p}g | T: ${parsed.f}g | W: ${parsed.c}g`);
+            showToast(`Dodano do bilansu Fitatu!\n+${parsed.kcal} kcal`);
         }
 
         async function deleteMealLog(id) {
             await fetch(`/inventory/nutrition/logs/${id}`, { method: 'DELETE' });
             loadNutritionData();
+            showToast("Usunięto posiłek", "info");
         }
 
         async function loadInventory() {
@@ -703,6 +792,7 @@
             });
             nameInput.value = '';
             loadInventory();
+            showToast("Dodano do lodówki");
         }
 
         async function deleteItem(id) {
@@ -711,9 +801,17 @@
         }
 
         async function clearInventory() {
-            if (!confirm('Usunąć wszystkie produkty ze swojej lodówki?')) return;
-            await fetch(`/inventory/clear/${deviceId}`, { method: 'DELETE' });
-            loadInventory();
+            showCustomModal({
+                title: 'Wyczyść lodówkę',
+                message: 'Czy na pewno chcesz usunąć wszystkie produkty ze swojej lodówki?',
+                type: 'confirm',
+                icon: 'fa-solid fa-trash-can text-rose-500',
+                onConfirm: async () => {
+                    await fetch(`/inventory/clear/${deviceId}`, { method: 'DELETE' });
+                    loadInventory();
+                    showToast("Lodówka została wyczyszczona", "info");
+                }
+            });
         }
 
         async function scanImage(event) {
@@ -731,11 +829,23 @@
                 const data = await res.json();
                 
                 setTimeout(() => {
-                    alert(`Dodano do Twojej lodówki (${data.detected_items.length}):\n` + data.detected_items.join(', '));
-                    loadInventory();
+                    if (data.detected_items && data.detected_items.length > 0) {
+                        showCustomModal({
+                            title: 'Skanowanie zakończone',
+                            message: `Dodano ${data.detected_items.length} produktów do Twojej lodówki:\n\n${data.detected_items.join(', ')}`,
+                            icon: 'fa-solid fa-circle-check text-emerald-500'
+                        });
+                        loadInventory();
+                    } else {
+                        showCustomModal({
+                            title: 'Brak jedzenia',
+                            message: 'Sztuczna Inteligencja nie znalazła żadnych produktów spożywczych na tym zdjęciu. Spróbuj zrobić wyraźniejsze ujęcie.',
+                            icon: 'fa-solid fa-circle-question text-amber-500'
+                        });
+                    }
                 }, 300);
             } catch (err) {
-                alert('Błąd podczas skanowania.');
+                showToast('Błąd podczas skanowania', 'error');
             } finally {
                 hideScanStatus();
                 event.target.value = '';
@@ -781,7 +891,7 @@
                 }, 300);
 
             } catch (err) {
-                alert('Błąd generowania przepisu.');
+                showToast('Błąd generowania przepisu', 'error');
             } finally {
                 hideRecipeStatus();
             }
@@ -795,6 +905,7 @@
             });
             btn.className = 'theme-badge px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1';
             btn.innerHTML = `<i class="fa-solid fa-check"></i> ${name}`;
+            showToast("Dodano do listy zakupów");
         }
 
         async function saveCurrentRecipe() {
@@ -811,7 +922,7 @@
                     content: lastGeneratedRecipe.recipe_text
                 })
             });
-            alert('Przepis zapisany w Twoich ulubionych!');
+            showToast("Przepis zapisany w Twoich ulubionych!");
         }
 
         async function loadSavedRecipes() {
@@ -850,8 +961,17 @@
         }
 
         async function deleteSavedRecipe(id) {
-            await fetch(`/recipes/saved/${id}`, { method: 'DELETE' });
-            loadSavedRecipes();
+            showCustomModal({
+                title: 'Usuwanie przepisu',
+                message: 'Czy na pewno usunąć ten przepis z ulubionych?',
+                type: 'confirm',
+                icon: 'fa-solid fa-trash-can text-rose-500',
+                onConfirm: async () => {
+                    await fetch(`/recipes/saved/${id}`, { method: 'DELETE' });
+                    loadSavedRecipes();
+                    showToast("Przepis został usunięty");
+                }
+            });
         }
 
         async function loadShopping() {
@@ -894,11 +1014,20 @@
         }
 
         async function clearShopping() {
-            await fetch(`/inventory/shopping/clear/${deviceId}`, { method: 'DELETE' });
-            loadShopping();
+            showCustomModal({
+                title: 'Czyszczenie listy',
+                message: 'Czy chcesz usunąć wszystkie przedmioty z listy zakupów?',
+                type: 'confirm',
+                icon: 'fa-solid fa-broom text-amber-500',
+                onConfirm: async () => {
+                    await fetch(`/inventory/shopping/clear/${deviceId}`, { method: 'DELETE' });
+                    loadShopping();
+                    showToast("Lista zakupów wyczyszczona", "info");
+                }
+            });
         }
 
-        // Inicjalizacja przy starcie
+        // Inicjalizacja
         loadInventory();
         loadNutritionData();
     </script>
