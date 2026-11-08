@@ -13,25 +13,67 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- SYSTEM ZMIENNYCH CSS DO DYNAMICZNEGO MOTYWU RGB -->
+    <!-- SYSTEM ZMIENNYCH CSS DO DYNAMICZNEGO MOTYWU RGB ORAZ ANIMACJE AI -->
     <style>
         body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
         :root {
             --app-theme: #059669; /* Domyślny Szmaragdowy */
-            --app-theme-light: #0596691a; /* Wersja z przezroczystością (badge) */
+            --app-theme-light: #0596691a; /* Wersja z przezroczystością */
         }
         
         .theme-bg { background-color: var(--app-theme) !important; }
         .theme-bg-grad { background: linear-gradient(135deg, var(--app-theme), #0f172a) !important; }
         .theme-text { color: var(--app-theme) !important; }
         .theme-badge { background-color: var(--app-theme-light) !important; color: var(--app-theme) !important; }
+
+        /* ANIMACJA MÓZGU (Oddychanie i neonowy blask w kolorze motywu) */
+        @keyframes brainBreathe {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--app-theme)); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 35px var(--app-theme)); }
+        }
+        .brain-breathe { animation: brainBreathe 2s ease-in-out infinite; }
+
+        /* ANIMACJA KROPEK MYŚLENIA (Efekt fali) */
+        @keyframes dotWave {
+            0%, 20% { opacity: 0; transform: translateY(2px); }
+            50% { opacity: 1; transform: translateY(-2px); }
+            80%, 100% { opacity: 0; transform: translateY(2px); }
+        }
+        .think-dot { display: inline-block; animation: dotWave 1.5s infinite; }
+        .think-dot:nth-child(1) { animation-delay: 0s; }
+        .think-dot:nth-child(2) { animation-delay: 0.25s; }
+        .think-dot:nth-child(3) { animation-delay: 0.5s; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 pb-28">
 
-    <header class="theme-bg text-white pt-10 pb-4 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20 transition-colors duration-200">
+    <!-- FULLSCREEN AI ANIMATION MODAL (GLASSMORPHISM) -->
+    <div id="aiLoadingOverlay" class="hidden fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-md flex-col items-center justify-center transition-all duration-300">
+        <div class="relative flex flex-col items-center">
+            
+            <!-- Chmurka myśli -->
+            <div class="absolute -top-12 -right-6 bg-white text-slate-800 px-4 py-2 rounded-2xl shadow-2xl font-black text-2xl flex gap-1 z-10 animate-bounce">
+                <span class="think-dot">.</span>
+                <span class="think-dot">.</span>
+                <span class="think-dot">.</span>
+                <!-- Ogon chmurki -->
+                <div class="absolute -bottom-2 left-4 w-4 h-4 bg-white transform rotate-45 rounded-sm"></div>
+            </div>
+
+            <!-- Główny mózg AI -->
+            <i class="fa-solid fa-brain text-[80px] theme-text brain-breathe relative z-0"></i>
+            
+            <!-- Tekst ładujący -->
+            <p id="aiLoadingText" class="mt-10 text-white/90 font-bold text-sm tracking-widest uppercase animate-pulse">
+                Analizuję piksele...
+            </p>
+        </div>
+    </div>
+
+    <!-- NAGŁÓWEK APLIKACJI -->
+    <header id="appHeader" class="theme-bg text-white pt-10 pb-4 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20 transition-colors duration-200">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div>
                 <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
@@ -76,11 +118,6 @@
     </header>
 
     <main class="max-w-md mx-auto px-4 mt-5">
-
-        <div id="statusAlert" class="hidden mb-4 bg-slate-50 border border-slate-200 theme-text px-4 py-3 rounded-2xl text-sm flex items-center gap-3 shadow-sm">
-            <i class="fa-solid fa-spinner fa-spin text-lg"></i>
-            <span id="statusText" class="font-semibold">Przetwarzanie przez AI...</span>
-        </div>
 
         <!-- ================= ZAKŁADKA 1: LODÓWKA ================= -->
         <div id="tab-fridge" class="space-y-5">
@@ -341,20 +378,19 @@
             
             // Zmiana głównych zmiennych CSS
             document.documentElement.style.setProperty('--app-theme', hexColor);
-            document.documentElement.style.setProperty('--app-theme-light', hexColor + '1a'); // 10% opacity na odznaki
+            document.documentElement.style.setProperty('--app-theme-light', hexColor + '1a'); // 10% opacity
             
-            // Aktualizacja samego pickera (by pokazywał odpowiedni kolor)
+            // Aktualizacja samego pickera
             const picker = document.getElementById('themeColorPicker');
             if (picker && picker.value !== hexColor) {
                 picker.value = hexColor;
             }
 
-            // Odśwież pasek nawigacji, by załadował nową klasę kolorystyczną
+            // Odśwież pasek nawigacji
             const activeTabId = ['fridge', 'macro', 'shopping', 'saved'].find(tab => !document.getElementById(`tab-${tab}`).classList.contains('hidden')) || 'fridge';
             switchTab(activeTabId);
         }
 
-        // --- INICJALIZACJA ---
         let savedTheme = localStorage.getItem('smart_fridge_custom_theme') || '#059669';
         applyCustomTheme(savedTheme);
 
@@ -388,12 +424,22 @@
             btn.className = 'style-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm';
         }
 
+        // --- ZMODYFIKOWANE FUNKCJE ŁADOWANIA (MODAL GLASSMORPHISM) ---
         function showStatus(text) {
-            document.getElementById('statusText').innerText = text;
-            document.getElementById('statusAlert').classList.remove('hidden');
+            const overlay = document.getElementById('aiLoadingOverlay');
+            const textEl = document.getElementById('aiLoadingText');
+            if (overlay && textEl) {
+                textEl.innerText = text;
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            }
         }
         function hideStatus() {
-            document.getElementById('statusAlert').classList.add('hidden');
+            const overlay = document.getElementById('aiLoadingOverlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
         }
 
         function parseNutritionFromText(caloriesStr, macrosStr) {
@@ -549,7 +595,7 @@
             const desc = inputEl.value.trim();
             if (!desc) return;
 
-            showStatus('AI szacuje kalorie i makroskładniki...');
+            showStatus('Oszacowuję kalorie i makro...');
             try {
                 const res = await fetch('/inventory/nutrition/estimate-and-log', {
                     method: 'POST',
@@ -564,7 +610,10 @@
                 const data = await res.json();
                 inputEl.value = '';
                 await loadNutritionData();
-                alert(`AI oszacowało posiłek:\n${data.name}\n🔥 ${data.calories} kcal | B: ${data.protein}g | T: ${data.fat}g | W: ${data.carbs}g`);
+                
+                setTimeout(() => {
+                    alert(`AI oszacowało posiłek:\n${data.name}\n🔥 ${data.calories} kcal | B: ${data.protein}g | T: ${data.fat}g | W: ${data.carbs}g`);
+                }, 300);
             } catch (err) {
                 alert('Błąd podczas szacowania posiłku.');
             } finally {
@@ -666,7 +715,7 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            showStatus('AI analizuje zdjęcie / paragon...');
+            showStatus('Analizuję piksele i szukam jedzenia...');
             const formData = new FormData();
             formData.append('file', file);
             formData.append('device_id', deviceId);
@@ -675,8 +724,12 @@
                 const res = await fetch('/inventory/scan', { method: 'POST', body: formData });
                 if (!res.ok) throw new Error('Błąd serwera');
                 const data = await res.json();
-                alert(`Dodano do Twojej lodówki (${data.detected_items.length}):\n` + data.detected_items.join(', '));
-                loadInventory();
+                
+                // Opóźniamy alert, żeby animacja najpierw zniknęła gładko
+                setTimeout(() => {
+                    alert(`Dodano do Twojej lodówki (${data.detected_items.length}):\n` + data.detected_items.join(', '));
+                    loadInventory();
+                }, 300);
             } catch (err) {
                 alert('Błąd podczas skanowania.');
             } finally {
@@ -686,7 +739,7 @@
         }
 
         async function generateRecipe() {
-            showStatus(`Szef Kuchni AI układa przepis (${selectedStyle})...`);
+            showStatus(`Szef Kuchni AI wymyśla przepis...`);
             try {
                 const res = await fetch('/recipes/generate', {
                     method: 'POST',
@@ -719,7 +772,10 @@
                     missingSec.classList.add('hidden');
                 }
 
-                document.getElementById('recipeContainer').scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => {
+                    document.getElementById('recipeContainer').scrollIntoView({ behavior: 'smooth' });
+                }, 300);
+
             } catch (err) {
                 alert('Błąd generowania przepisu.');
             } finally {
@@ -838,6 +894,7 @@
             loadShopping();
         }
 
+        // Inicjalizacja przy starcie
         loadInventory();
         loadNutritionData();
     </script>
