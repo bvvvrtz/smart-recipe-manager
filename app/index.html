@@ -26,6 +26,7 @@
         .theme-bg-grad { background: linear-gradient(135deg, var(--app-theme), #0f172a) !important; }
         .theme-text { color: var(--app-theme) !important; }
         .theme-badge { background-color: var(--app-theme-light) !important; color: var(--app-theme) !important; }
+        .theme-border { border-color: var(--app-theme) !important; }
 
         @keyframes brainBreathe {
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--app-theme)); }
@@ -45,13 +46,187 @@
 </head>
 <body class="bg-slate-50 text-slate-800 pb-28">
 
-    <!-- NOWY SYSTEM TOASTÓW -->
+    <!-- ================= KREATOR PIERWSZEGO URUCHOMIENIA (8 KROKÓW) ================= -->
+    <div id="onboardingOverlay" class="hidden fixed inset-0 z-[140] bg-slate-900/95 backdrop-blur-md flex-col justify-between p-6 text-white overflow-y-auto">
+        <div class="max-w-md mx-auto w-full pt-4">
+            <div class="flex justify-between items-center text-xs font-bold text-slate-400 mb-2">
+                <span>KROK <span id="obStepNum">1</span> Z 8</span>
+                <span id="obStepPct">12%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div id="obProgressBar" class="theme-bg h-full transition-all duration-300" style="width: 12.5%"></div>
+            </div>
+        </div>
+
+        <div class="max-w-md mx-auto w-full my-auto py-6">
+            <!-- Krok 1: Płeć -->
+            <div id="ob-step-1" class="ob-step space-y-5">
+                <div class="text-center space-y-2">
+                    <span class="theme-badge px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Start</span>
+                    <h2 class="text-2xl font-extrabold">Wybierz swoją płeć</h2>
+                    <p class="text-xs text-slate-400">Pozwoli to AI precyzyjnie wyliczyć Twoje podstawowe zapotrzebowanie (BMR).</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <button onclick="selectObOption('gender', 'Mężczyzna', this)" class="ob-gender-btn bg-slate-800/80 border-2 border-slate-700 p-6 rounded-3xl flex flex-col items-center gap-3 active:scale-95 transition">
+                        <i class="fa-solid fa-mars text-4xl text-blue-400"></i>
+                        <span class="font-bold text-sm">Mężczyzna</span>
+                    </button>
+                    <button onclick="selectObOption('gender', 'Kobieta', this)" class="ob-gender-btn bg-slate-800/80 border-2 border-slate-700 p-6 rounded-3xl flex flex-col items-center gap-3 active:scale-95 transition">
+                        <i class="fa-solid fa-venus text-4xl text-rose-400"></i>
+                        <span class="font-bold text-sm">Kobieta</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Krok 2: Data urodzenia -->
+            <div id="ob-step-2" class="ob-step hidden space-y-5">
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl font-extrabold">Kiedy się urodziłeś?</h2>
+                    <p class="text-xs text-slate-400">Wiek wpływa na tempo przemiany materii.</p>
+                </div>
+                <input type="date" id="obBirthDate" value="2005-01-01" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-center text-lg font-bold text-white focus:outline-none">
+            </div>
+
+            <!-- Krok 3: Wzrost -->
+            <div id="ob-step-3" class="ob-step hidden space-y-5">
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl font-extrabold">Twój wzrost (cm)</h2>
+                    <p class="text-xs text-slate-400">Podaj swój wzrost w centymetrach.</p>
+                </div>
+                <div class="relative">
+                    <input type="number" id="obHeight" placeholder="np. 182" value="180" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-center text-2xl font-extrabold text-white focus:outline-none">
+                    <span class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">cm</span>
+                </div>
+            </div>
+
+            <!-- Krok 4: Aktualna waga -->
+            <div id="ob-step-4" class="ob-step hidden space-y-5">
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl font-extrabold">Aktualna waga (kg)</h2>
+                    <p class="text-xs text-slate-400">Ile obecnie ważysz?</p>
+                </div>
+                <div class="relative">
+                    <input type="number" step="0.1" id="obCurrentWeight" placeholder="np. 80" value="80" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-center text-2xl font-extrabold text-white focus:outline-none">
+                    <span class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">kg</span>
+                </div>
+            </div>
+
+            <!-- Krok 5: Docelowa waga -->
+            <div id="ob-step-5" class="ob-step hidden space-y-5">
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl font-extrabold">Docelowa waga (kg)</h2>
+                    <p class="text-xs text-slate-400">Jaką wagę chcesz osiągnąć?</p>
+                </div>
+                <div class="relative">
+                    <input type="number" step="0.1" id="obTargetWeight" placeholder="np. 75" value="80" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-center text-2xl font-extrabold text-white focus:outline-none">
+                    <span class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">kg</span>
+                </div>
+            </div>
+
+            <!-- Krok 6: Tempo zmiany wagi -->
+            <div id="ob-step-6" class="ob-step hidden space-y-4">
+                <div class="text-center space-y-1">
+                    <h2 class="text-2xl font-extrabold">W jakim tempie?</h2>
+                    <p class="text-xs text-slate-400">Wybierz tygodniowe wahanie wagi:</p>
+                </div>
+                <div class="space-y-2.5">
+                    <button onclick="selectObOption('pace', '0.25 kg tygodniowo (Powolne i stabilne)', this)" class="ob-pace-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left flex justify-between items-center active:scale-95 transition">
+                        <div>
+                            <div class="font-bold text-sm">🐢 Powolne i łatwe</div>
+                            <div class="text-xs text-slate-400">Wahanie ok. 0.25 kg / tydzień</div>
+                        </div>
+                    </button>
+                    <button onclick="selectObOption('pace', '0.5 kg tygodniowo (Optymalne i zalecane)', this)" class="ob-pace-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left flex justify-between items-center active:scale-95 transition">
+                        <div>
+                            <div class="font-bold text-sm">⚡ Optymalne (Zalecane)</div>
+                            <div class="text-xs text-slate-400">Wahanie ok. 0.5 kg / tydzień</div>
+                        </div>
+                    </button>
+                    <button onclick="selectObOption('pace', '0.75 - 1.0 kg tygodniowo (Szybkie i wymagające)', this)" class="ob-pace-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left flex justify-between items-center active:scale-95 transition">
+                        <div>
+                            <div class="font-bold text-sm">🔥 Szybkie i agresywne</div>
+                            <div class="text-xs text-slate-400">Wahanie 0.75 - 1.0 kg / tydzień</div>
+                        </div>
+                    </button>
+                    <button onclick="selectObOption('pace', 'Utrzymanie aktualnej wagi (0 kg/tydzień)', this)" class="ob-pace-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left flex justify-between items-center active:scale-95 transition">
+                        <div>
+                            <div class="font-bold text-sm">⚖️ Utrzymanie wagi / Rekompozycja</div>
+                            <div class="text-xs text-slate-400">Stała masa ciała (0 kg / tydzień)</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Krok 7: Ilość treningów w tygodniu -->
+            <div id="ob-step-7" class="ob-step hidden space-y-4">
+                <div class="text-center space-y-1">
+                    <h2 class="text-2xl font-extrabold">Treningi w tygodniu</h2>
+                    <p class="text-xs text-slate-400">Ile razy w tygodniu trenujesz (siłownia, sport)?</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectObOption('workouts', 'Brak treningów (0 w tygodniu)', this)" class="ob-work-btn bg-slate-800/80 border-2 border-slate-700 p-4 rounded-2xl text-center active:scale-95 transition">
+                        <div class="text-xl font-black">0</div>
+                        <div class="text-xs text-slate-400 mt-1">Brak treningów</div>
+                    </button>
+                    <button onclick="selectObOption('workouts', '1-2 treningi w tygodniu', this)" class="ob-work-btn bg-slate-800/80 border-2 border-slate-700 p-4 rounded-2xl text-center active:scale-95 transition">
+                        <div class="text-xl font-black">1 - 2</div>
+                        <div class="text-xs text-slate-400 mt-1">Rekreacyjnie</div>
+                    </button>
+                    <button onclick="selectObOption('workouts', '3-4 treningi w tygodniu', this)" class="ob-work-btn bg-slate-800/80 border-2 border-slate-700 p-4 rounded-2xl text-center active:scale-95 transition">
+                        <div class="text-xl font-black">3 - 4</div>
+                        <div class="text-xs text-slate-400 mt-1">Regularnie</div>
+                    </button>
+                    <button onclick="selectObOption('workouts', '5 lub więcej treningów w tygodniu', this)" class="ob-work-btn bg-slate-800/80 border-2 border-slate-700 p-4 rounded-2xl text-center active:scale-95 transition">
+                        <div class="text-xl font-black">5+</div>
+                        <div class="text-xs text-slate-400 mt-1">Bardzo często</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Krok 8: Poziom ruchu w ciągu dnia -->
+            <div id="ob-step-8" class="ob-step hidden space-y-4">
+                <div class="text-center space-y-1">
+                    <h2 class="text-2xl font-extrabold">Ruch w ciągu dnia</h2>
+                    <p class="text-xs text-slate-400">Jak wygląda Twoja aktywność poza treningami?</p>
+                </div>
+                <div class="space-y-2.5">
+                    <button onclick="selectObOption('activity', 'Niski / Siedzący (szkoła, uczelnia, biuro, mało kroków)', this)" class="ob-act-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left active:scale-95 transition">
+                        <div class="font-bold text-sm">💻 Siedzący (Niski)</div>
+                        <div class="text-xs text-slate-400">Biuro, uczelnia, jazda autem (poniżej 5 000 kroków)</div>
+                    </button>
+                    <button onclick="selectObOption('activity', 'Umiarkowany (trochę chodzenia, spacery, 6000-9000 kroków)', this)" class="ob-act-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left active:scale-95 transition">
+                        <div class="font-bold text-sm">🚶 Umiarkowany (Średni)</div>
+                        <div class="text-xs text-slate-400">Codzienne spacery, zakupy (6 000 – 9 000 kroków)</div>
+                    </button>
+                    <button onclick="selectObOption('activity', 'Wysoki (praca w ruchu, bardzo dużo chodzenia, ponad 10000 kroków)', this)" class="ob-act-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left active:scale-95 transition">
+                        <div class="font-bold text-sm">🏃 Aktywny (Wysoki)</div>
+                        <div class="text-xs text-slate-400">Cały dzień na nogach (ponad 10 000 kroków)</div>
+                    </button>
+                    <button onclick="selectObOption('activity', 'Bardzo wysoki (ciężka praca fizyczna)', this)" class="ob-act-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left active:scale-95 transition">
+                        <div class="font-bold text-sm">🏋️ Bardzo wysoki (Fizyczny)</div>
+                        <div class="text-xs text-slate-400">Ciężka praca fizyczna przez większość dnia</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-md mx-auto w-full flex gap-3 pb-4">
+            <button id="obPrevBtn" onclick="prevObStep()" class="hidden bg-slate-800 text-slate-300 font-bold py-3.5 px-6 rounded-2xl text-sm active:scale-95 transition">
+                Wstecz
+            </button>
+            <button id="obNextBtn" onclick="nextObStep()" class="flex-1 theme-bg text-white font-bold py-3.5 px-6 rounded-2xl text-sm shadow-lg active:scale-95 transition">
+                Dalej <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- SYSTEM TOASTÓW -->
     <div id="toastNotification" class="fixed top-4 left-1/2 -translate-x-1/2 z-[150] transition-all duration-300 transform -translate-y-24 opacity-0 flex items-center gap-3 bg-slate-800 text-white px-5 py-3 rounded-2xl shadow-2xl max-w-sm w-[90%] pointer-events-none">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
         <span id="toastText" class="text-sm font-semibold whitespace-pre-line leading-tight"></span>
     </div>
 
-    <!-- NOWY SYSTEM MODALI -->
+    <!-- SYSTEM MODALI -->
     <div id="customModalOverlay" class="hidden fixed inset-0 z-[120] bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4 opacity-0 transition-opacity duration-200">
         <div id="customModalBox" class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl transform scale-95 transition-transform duration-200 text-center">
             <div class="mb-4">
@@ -64,17 +239,17 @@
     </div>
 
     <!-- MODAL SKANOWANIA (MÓZG) -->
-    <div id="aiScanOverlay" class="hidden fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-md flex-col items-center justify-center transition-all duration-300">
+    <div id="aiScanOverlay" class="hidden fixed inset-0 z-[160] bg-slate-900/70 backdrop-blur-md flex-col items-center justify-center transition-all duration-300">
         <div class="relative flex flex-col items-center">
             <i class="fa-solid fa-brain text-[80px] theme-text brain-breathe relative z-0"></i>
-            <p id="aiScanText" class="mt-10 text-white/90 font-bold text-sm tracking-widest uppercase animate-pulse">
+            <p id="aiScanText" class="mt-10 text-white/90 font-bold text-sm tracking-widest uppercase animate-pulse text-center px-6">
                 Analizuję dane...
             </p>
         </div>
     </div>
 
     <!-- MODAL PRZEPISU (BLENDER) -->
-    <div id="aiRecipeOverlay" class="hidden fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-md flex-col items-center justify-center transition-all duration-300">
+    <div id="aiRecipeOverlay" class="hidden fixed inset-0 z-[160] bg-slate-900/70 backdrop-blur-md flex-col items-center justify-center transition-all duration-300">
         <div class="relative flex flex-col items-center">
             <i class="fa-solid fa-blender text-[80px] theme-text blender-mix relative z-0"></i>
             <p id="aiRecipeText" class="mt-10 text-white/90 font-bold text-sm tracking-widest uppercase animate-pulse">
@@ -164,7 +339,6 @@
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Szef Kuchni AI
                 </h2>
                 
-                <!-- SEKCJA 1: STYL / KUCHNIA -->
                 <p class="text-white/80 text-[11px] uppercase font-bold tracking-wider mb-2"><i class="fa-solid fa-utensils"></i> Wybierz Styl Posiłku</p>
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2" id="cuisineChips">
                     <button onclick="selectCuisine('Dowolny / Mix z lodówki', this)" class="cuisine-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">🎲 Dowolna</button>
@@ -176,7 +350,6 @@
                     <button onclick="selectCuisine('Comfort Food / Fast Food domowy', this)" class="cuisine-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍔 Comfort Food</button>
                 </div>
 
-                <!-- SEKCJA 2: SPRZĘT -->
                 <p class="text-white/80 text-[11px] uppercase font-bold tracking-wider mb-2 mt-2"><i class="fa-solid fa-plug"></i> Dostępny Sprzęt</p>
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-4" id="equipmentChips">
                     <button onclick="selectEquipment('Dowolny standardowy sprzęt', this)" class="eq-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">🍳 Dowolny</button>
@@ -235,9 +408,14 @@
                         </h2>
                         <p id="todayDateDisplay" class="text-xs text-slate-400"></p>
                     </div>
-                    <button onclick="toggleGoalEditor()" class="text-xs bg-slate-100 text-slate-700 font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 active:scale-95 transition">
-                        <i class="fa-solid fa-sliders"></i> Zmień cel
-                    </button>
+                    <div class="flex gap-1.5">
+                        <button onclick="openOnboarding()" class="text-xs theme-badge font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1 active:scale-95 transition">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Kreator AI
+                        </button>
+                        <button onclick="toggleGoalEditor()" class="text-xs bg-slate-100 text-slate-700 font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1 active:scale-95 transition">
+                            <i class="fa-solid fa-sliders"></i> Ręcznie
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
@@ -285,7 +463,7 @@
                 </div>
 
                 <div id="goalEditor" class="hidden pt-3 border-t border-slate-100 space-y-3">
-                    <h3 class="text-xs font-bold uppercase text-slate-400">Ustaw swoje dzienne zapotrzebowanie</h3>
+                    <h3 class="text-xs font-bold uppercase text-slate-400">Ustaw ręcznie zapotrzebowanie</h3>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
                             <label class="font-semibold text-slate-600">Kalorie (kcal)</label>
@@ -390,12 +568,156 @@
             localStorage.setItem('smart_fridge_device_id', deviceId);
         }
 
-        // ZMIENNE DO NOWEGO KREATORA PRZEPISÓW
         let selectedCuisine = 'Dowolny / Mix z lodówki';
         let selectedEquipment = 'Dowolny standardowy sprzęt';
-        
         let lastGeneratedRecipe = null;
         let currentGoals = { calories_goal: 2400, protein_goal: 160, fat_goal: 75, carbs_goal: 270 };
+
+        // --- LOGIKA KREATORA ONBOARDING (8 KROKÓW) ---
+        let obStep = 1;
+        const obData = {
+            gender: '',
+            birth_date: '2005-01-01',
+            height: 180,
+            current_weight: 80,
+            target_weight: 80,
+            weekly_pace: '',
+            workouts_per_week: '',
+            daily_activity: ''
+        };
+
+        function openOnboarding() {
+            obStep = 1;
+            updateObUI();
+            const overlay = document.getElementById('onboardingOverlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        }
+
+        function closeOnboarding() {
+            const overlay = document.getElementById('onboardingOverlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        }
+
+        function selectObOption(category, value, btn) {
+            if (category === 'gender') {
+                obData.gender = value;
+                document.querySelectorAll('.ob-gender-btn').forEach(b => b.className = 'ob-gender-btn bg-slate-800/80 border-2 border-slate-700 p-6 rounded-3xl flex flex-col items-center gap-3 active:scale-95 transition');
+                btn.className = 'ob-gender-btn bg-slate-800 border-2 theme-border p-6 rounded-3xl flex flex-col items-center gap-3 scale-[1.02] transition shadow-lg';
+            } else if (category === 'pace') {
+                obData.weekly_pace = value;
+                document.querySelectorAll('.ob-pace-btn').forEach(b => b.className = 'ob-pace-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left flex justify-between items-center active:scale-95 transition');
+                btn.className = 'ob-pace-btn w-full bg-slate-800 border-2 theme-border p-3.5 rounded-2xl text-left flex justify-between items-center transition shadow-lg';
+            } else if (category === 'workouts') {
+                obData.workouts_per_week = value;
+                document.querySelectorAll('.ob-work-btn').forEach(b => b.className = 'ob-work-btn bg-slate-800/80 border-2 border-slate-700 p-4 rounded-2xl text-center active:scale-95 transition');
+                btn.className = 'ob-work-btn bg-slate-800 border-2 theme-border p-4 rounded-2xl text-center scale-[1.02] transition shadow-lg';
+            } else if (category === 'activity') {
+                obData.daily_activity = value;
+                document.querySelectorAll('.ob-act-btn').forEach(b => b.className = 'ob-act-btn w-full bg-slate-800/80 border-2 border-slate-700 p-3.5 rounded-2xl text-left active:scale-95 transition');
+                btn.className = 'ob-act-btn w-full bg-slate-800 border-2 theme-border p-3.5 rounded-2xl text-left transition shadow-lg';
+            }
+        }
+
+        function updateObUI() {
+            document.querySelectorAll('.ob-step').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`ob-step-${obStep}`).classList.remove('hidden');
+
+            document.getElementById('obStepNum').innerText = obStep;
+            const pct = Math.round((obStep / 8) * 100);
+            document.getElementById('obStepPct').innerText = `${pct}%`;
+            document.getElementById('obProgressBar').style.width = `${pct}%`;
+
+            const prevBtn = document.getElementById('obPrevBtn');
+            const nextBtn = document.getElementById('obNextBtn');
+
+            if (obStep === 1) {
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+            }
+
+            if (obStep === 8) {
+                nextBtn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Oblicz moje Makro AI`;
+            } else {
+                nextBtn.innerHTML = `Dalej <i class="fa-solid fa-arrow-right ml-1"></i>`;
+            }
+        }
+
+        function prevObStep() {
+            if (obStep > 1) {
+                obStep--;
+                updateObUI();
+            }
+        }
+
+        async function nextObStep() {
+            if (obStep === 1 && !obData.gender) return showToast('Wybierz swoją płeć', 'error');
+            if (obStep === 2) {
+                const bd = document.getElementById('obBirthDate').value;
+                if (!bd) return showToast('Podaj datę urodzenia', 'error');
+                obData.birth_date = bd;
+            }
+            if (obStep === 3) {
+                const h = parseInt(document.getElementById('obHeight').value);
+                if (!h || h < 100 || h > 250) return showToast('Podaj prawidłowy wzrost (100-250 cm)', 'error');
+                obData.height = h;
+            }
+            if (obStep === 4) {
+                const cw = parseFloat(document.getElementById('obCurrentWeight').value);
+                if (!cw || cw < 30 || cw > 250) return showToast('Podaj prawidłową wagę', 'error');
+                obData.current_weight = cw;
+                document.getElementById('obTargetWeight').value = cw;
+            }
+            if (obStep === 5) {
+                const tw = parseFloat(document.getElementById('obTargetWeight').value);
+                if (!tw || tw < 30 || tw > 250) return showToast('Podaj prawidłową wagę docelową', 'error');
+                obData.target_weight = tw;
+            }
+            if (obStep === 6 && !obData.weekly_pace) return showToast('Wybierz tempo osiągania celu', 'error');
+            if (obStep === 7 && !obData.workouts_per_week) return showToast('Wybierz ilość treningów', 'error');
+            if (obStep === 8) {
+                if (!obData.daily_activity) return showToast('Wybierz poziom ruchu w ciągu dnia', 'error');
+                await submitOnboarding();
+                return;
+            }
+
+            obStep++;
+            updateObUI();
+        }
+
+        async function submitOnboarding() {
+            showScanStatus('Dietetyk AI analizuje Twoje parametry i wylicza makro...');
+            try {
+                const res = await fetch('/inventory/nutrition/onboarding', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        device_id: deviceId,
+                        ...obData
+                    })
+                });
+                if (!res.ok) throw new Error('Błąd serwera');
+                const goal = await res.json();
+                localStorage.setItem('smart_fridge_onboarded', 'true');
+                closeOnboarding();
+                await loadNutritionData();
+
+                setTimeout(() => {
+                    showCustomModal({
+                        title: 'Twój Plan AI jest gotowy!',
+                        message: `Na podstawie Twoich parametrów AI wyliczyło dzienne zapotrzebowanie:\n\n🔥 Kalorie: ${goal.calories_goal} kcal\n💪 Białko: ${goal.protein_goal}g\n🥑 Tłuszcze: ${goal.fat_goal}g\n🍚 Węglowodany: ${goal.carbs_goal}g`,
+                        icon: 'fa-solid fa-bullseye theme-text'
+                    });
+                }, 300);
+            } catch (err) {
+                showToast('Błąd podczas obliczania celów', 'error');
+            } finally {
+                hideScanStatus();
+            }
+        }
+        // ---------------------------------------------------
 
         // --- CUSTOM TOASTS & MODALS ---
         let toastTimeout;
@@ -464,7 +786,6 @@
                 box.classList.add('scale-100');
             }, 10);
         }
-        // ---------------------------------
 
         function applyCustomTheme(hexColor) {
             localStorage.setItem('smart_fridge_custom_theme', hexColor);
@@ -505,7 +826,6 @@
             if (tab === 'saved') loadSavedRecipes();
         }
 
-        // --- FUNKCJE WYBORU KUCHNI I SPRZĘTU ---
         function selectCuisine(cuisine, btn) {
             selectedCuisine = cuisine;
             document.querySelectorAll('.cuisine-chip').forEach(el => {
@@ -878,11 +1198,8 @@
             }
         }
 
-        // --- ZMODYFIKOWANE WYSYŁANIE DO API (POŁĄCZONY STYL I SPRZĘT) ---
         async function generateRecipe() {
             showRecipeStatus(`Szef Kuchni AI miksuje przepis...`);
-            
-            // Łączymy dwa wybory w jedno zdanie dla backendu
             const combinedStyle = `Klimat: ${selectedCuisine} | Użyty sprzęt: ${selectedEquipment}`;
 
             try {
@@ -1058,9 +1375,13 @@
             });
         }
 
-        // Inicjalizacja
+        // Inicjalizacja oraz sprawdzenie pierwszego uruchomienia
         loadInventory();
         loadNutritionData();
+
+        if (!localStorage.getItem('smart_fridge_onboarded')) {
+            openOnboarding();
+        }
     </script>
 </body>
 </html>

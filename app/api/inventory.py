@@ -4,7 +4,11 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app import models, schemas
-from app.services.ai_service import analyze_image_for_ingredients, estimate_meal_macros
+from app.services.ai_service import (
+    analyze_image_for_ingredients,
+    estimate_meal_macros,
+    calculate_nutrition_onboarding
+)
 
 router = APIRouter(prefix="/inventory", tags=["Inventory, Shopping & Nutrition"])
 
@@ -85,7 +89,7 @@ def clear_shopping_list(device_id: str, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Lista zakupów wyczyszczona"}
 
-# --- FITATU: CELE I KALORIE ---
+# --- MAKRO: CELE I KALORIE ---
 @router.get("/nutrition/goal", response_model=schemas.NutritionGoalResponse)
 def get_nutrition_goal(device_id: str, db: Session = Depends(get_db)):
     goal = db.query(models.NutritionGoal).filter(models.NutritionGoal.device_id == device_id).first()
@@ -113,6 +117,30 @@ def set_nutrition_goal(data: schemas.NutritionGoalCreate, db: Session = Depends(
         goal.protein_goal = data.protein_goal
         goal.fat_goal = data.fat_goal
         goal.carbs_goal = data.carbs_goal
+    db.commit()
+    db.refresh(goal)
+    return goal
+
+@router.post("/nutrition/onboarding", response_model=schemas.NutritionGoalResponse)
+def complete_onboarding(data: schemas.OnboardingRequest, db: Session = Depends(get_db)):
+    calculated = calculate_nutrition_onboarding(data.model_dump())
+    
+    goal = db.query(models.NutritionGoal).filter(models.NutritionGoal.device_id == data.device_id).first()
+    if not goal:
+        goal = models.NutritionGoal(
+            device_id=data.device_id,
+            calories_goal=calculated.get("calories_goal", 2400),
+            protein_goal=calculated.get("protein_goal", 160),
+            fat_goal=calculated.get("fat_goal", 75),
+            carbs_goal=calculated.get("carbs_goal", 270)
+        )
+        db.add(goal)
+    else:
+        goal.calories_goal = calculated.get("calories_goal", 2400)
+        goal.protein_goal = calculated.get("protein_goal", 160)
+        goal.fat_goal = calculated.get("fat_goal", 75)
+        goal.carbs_goal = calculated.get("carbs_goal", 270)
+        
     db.commit()
     db.refresh(goal)
     return goal

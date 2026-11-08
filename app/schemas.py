@@ -99,3 +99,14 @@ class MealEstimateRequest(BaseModel):
     device_id: str
     description: str
     date: str
+
+class OnboardingRequest(BaseModel):
+    device_id: str
+    gender: str
+    birth_date: str
+    height: int
+    current_weight: float
+    target_weight: float
+    weekly_pace: str
+    workouts_per_week: str
+    daily_activity: str
