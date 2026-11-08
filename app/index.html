@@ -19,19 +19,24 @@
 </head>
 <body class="bg-slate-50 text-slate-800 pb-28">
 
-    <header class="bg-emerald-600 text-white pt-10 pb-4 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20">
+    <!-- NAGŁÓWEK Z DYNAMICZNYM KOLOREM -->
+    <header id="appHeader" class="bg-emerald-600 text-white pt-10 pb-4 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20 transition-colors duration-300">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div>
                 <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
                     <i class="fa-solid fa-leaf"></i> Smart Fridge PRO
                 </h1>
-                <p class="text-emerald-100 text-xs mt-0.5">Lodówka, Przepisy & Fitatu AI</p>
+                <p class="text-white/80 text-xs mt-0.5">Lodówka, Przepisy & Fitatu AI</p>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="window.location.reload()" title="Odśwież aplikację" class="bg-emerald-700 text-white px-3 py-2 rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center">
+                <!-- PRZYCISK WYBORU MOTYWU -->
+                <button onclick="toggleThemeModal()" title="Zmień motyw kolorystyczny" class="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center">
+                    <i class="fa-solid fa-palette text-sm"></i>
+                </button>
+                <button onclick="window.location.reload()" title="Odśwież aplikację" class="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center">
                     <i class="fa-solid fa-rotate-right text-sm"></i>
                 </button>
-                <label class="bg-white text-emerald-700 px-3.5 py-2 rounded-2xl font-bold text-xs shadow-md active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
+                <label id="scanBtnContainer" class="bg-white text-emerald-700 px-3.5 py-2 rounded-2xl font-bold text-xs shadow-md active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-camera text-base"></i>
                     <span>Skanuj</span>
                     <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="scanImage(event)">
@@ -40,23 +45,51 @@
         </div>
 
         <!-- MINI PASEK FITATU W NAGŁÓWKU -->
-        <div onclick="switchTab('macro')" class="max-w-md mx-auto mt-3.5 bg-emerald-800/50 backdrop-blur-sm p-2.5 rounded-2xl cursor-pointer active:scale-[0.99] transition border border-emerald-500/30">
+        <div onclick="switchTab('macro')" class="max-w-md mx-auto mt-3.5 bg-black/20 backdrop-blur-sm p-2.5 rounded-2xl cursor-pointer active:scale-[0.99] transition border border-white/20">
             <div class="flex justify-between items-center text-xs mb-1">
-                <span class="font-bold flex items-center gap-1.5 text-emerald-50">
-                    <i class="fa-solid fa-fire text-amber-400"></i> Dzisiaj: <span id="miniKcal">0 / 2400</span> kcal
+                <span class="font-bold flex items-center gap-1.5 text-white">
+                    <i class="fa-solid fa-fire text-amber-300"></i> Dzisiaj: <span id="miniKcal">0 / 2400</span> kcal
                 </span>
-                <span class="text-[11px] text-emerald-200 font-semibold flex items-center gap-2">
+                <span class="text-[11px] text-white/90 font-semibold flex items-center gap-2">
                     <span>B: <b id="miniP" class="text-white">0</b>g</span>
                     <span>T: <b id="miniF" class="text-white">0</b>g</span>
                     <span>W: <b id="miniC" class="text-white">0</b>g</span>
                     <i class="fa-solid fa-chevron-right text-[10px]"></i>
                 </span>
             </div>
-            <div class="w-full bg-emerald-950/50 h-2 rounded-full overflow-hidden">
-                <div id="miniKcalBar" class="bg-gradient-to-r from-amber-400 to-emerald-300 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            <div class="w-full bg-black/30 h-2 rounded-full overflow-hidden">
+                <div id="miniKcalBar" class="bg-gradient-to-r from-amber-300 to-white h-full rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
         </div>
     </header>
+
+    <!-- MODAL WYBORU MOTYWU -->
+    <div id="themeModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xs rounded-3xl p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-palette text-emerald-600"></i> Wybierz motyw
+                </h3>
+                <button onclick="toggleThemeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+                <button onclick="setTheme('emerald')" class="p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold text-xs flex items-center gap-2 active:scale-95 transition">
+                    <span class="w-4 h-4 rounded-full bg-emerald-600 inline-block"></span> Szmaragdowy
+                </button>
+                <button onclick="setTheme('ocean')" class="p-3 rounded-2xl border-2 border-blue-500 bg-blue-50 text-blue-800 font-bold text-xs flex items-center gap-2 active:scale-95 transition">
+                    <span class="w-4 h-4 rounded-full bg-blue-600 inline-block"></span> Oceaniczny
+                </button>
+                <button onclick="setTheme('purple')" class="p-3 rounded-2xl border-2 border-purple-500 bg-purple-50 text-purple-800 font-bold text-xs flex items-center gap-2 active:scale-95 transition">
+                    <span class="w-4 h-4 rounded-full bg-purple-600 inline-block"></span> Fioletowy
+                </button>
+                <button onclick="setTheme('amber')" class="p-3 rounded-2xl border-2 border-amber-500 bg-amber-50 text-amber-800 font-bold text-xs flex items-center gap-2 active:scale-95 transition">
+                    <span class="w-4 h-4 rounded-full bg-amber-600 inline-block"></span> Bursztynowy
+                </button>
+            </div>
+        </div>
+    </div>
 
     <main class="max-w-md mx-auto px-4 mt-5">
 
@@ -78,7 +111,7 @@
                         <option value="7" selected>7 dni</option>
                         <option value="14">14+ dni</option>
                     </select>
-                    <button onclick="addItem()" class="bg-emerald-600 text-white px-3.5 py-2.5 rounded-xl font-bold active:scale-95 transition">
+                    <button onclick="addItem()" id="addBtnElem" class="bg-emerald-600 text-white px-3.5 py-2.5 rounded-xl font-bold active:scale-95 transition">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -87,7 +120,7 @@
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-snowflake text-emerald-600"></i> Moja Lodówka
+                        <i class="fa-solid fa-snowflake text-emerald-600" id="fridgeIconTitle"></i> Moja Lodówka
                         <span id="itemCount" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0</span>
                     </h2>
                     <button onclick="clearInventory()" id="clearAllBtn" class="hidden text-xs text-red-500 font-semibold flex items-center gap-1 bg-red-50 px-2.5 py-1 rounded-lg active:scale-95 transition">
@@ -97,21 +130,21 @@
                 <ul id="inventoryList" class="divide-y divide-slate-100 text-sm space-y-1"></ul>
             </div>
 
-            <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-5 rounded-3xl text-white shadow-lg">
+            <div id="chefCardElem" class="bg-gradient-to-br from-emerald-600 to-teal-700 p-5 rounded-3xl text-white shadow-lg transition-colors duration-300">
                 <h2 class="text-base font-bold flex items-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Szef Kuchni AI
                 </h2>
-                <p class="text-emerald-100 text-xs mt-0.5 mb-3">Wybierz styl lub sprzęt:</p>
+                <p class="text-white/80 text-xs mt-0.5 mb-3">Wybierz styl lub sprzęt:</p>
                 
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2" id="styleChips">
-                    <button onclick="selectStyle('Dowolny Zero Waste', this)" class="style-chip bg-white text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">🎲 Dowolny</button>
-                    <button onclick="selectStyle('Kuchnia Meksykańska (Burrito, Tacos, Bowl)', this)" class="style-chip bg-emerald-700/60 text-emerald-100 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🌮 Meksykańska</button>
-                    <button onclick="selectStyle('Kuchnia Włoska (Makarony, Sosy)', this)" class="style-chip bg-emerald-700/60 text-emerald-100 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍝 Włoska</button>
-                    <button onclick="selectStyle('Danie z Airfryera', this)" class="style-chip bg-emerald-700/60 text-emerald-100 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍟 Airfryer</button>
-                    <button onclick="selectStyle('Szybkie do 15 minut (Wysokie Białko)', this)" class="style-chip bg-emerald-700/60 text-emerald-100 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">⚡ Szybkie & High Protein</button>
+                    <button onclick="selectStyle('Dowolny Zero Waste', this)" class="style-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm">🎲 Dowolny</button>
+                    <button onclick="selectStyle('Kuchnia Meksykańska (Burrito, Tacos, Bowl)', this)" class="style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🌮 Meksykańska</button>
+                    <button onclick="selectStyle('Kuchnia Włoska (Makarony, Sosy)', this)" class="style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍝 Włoska</button>
+                    <button onclick="selectStyle('Danie z Airfryera', this)" class="style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">🍟 Airfryer</button>
+                    <button onclick="selectStyle('Szybkie do 15 minut (Wysokie Białko)', this)" class="style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap">⚡ Szybkie & High Protein</button>
                 </div>
 
-                <button onclick="generateRecipe()" class="w-full bg-white text-emerald-800 font-bold py-3 rounded-xl shadow active:scale-95 transition flex justify-center items-center gap-2">
+                <button onclick="generateRecipe()" class="w-full bg-white text-slate-900 font-bold py-3 rounded-xl shadow active:scale-95 transition flex justify-center items-center gap-2">
                     <i class="fa-solid fa-utensils"></i> Wygeneruj Przepis!
                 </button>
             </div>
@@ -120,7 +153,7 @@
                 <h3 id="recipeTitle" class="font-bold text-slate-800 text-lg leading-snug"></h3>
 
                 <div class="flex gap-2">
-                    <button onclick="eatCurrentRecipe()" class="flex-1 bg-emerald-600 text-white py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
+                    <button onclick="eatCurrentRecipe()" id="eatRecipeBtn" class="flex-1 bg-emerald-600 text-white py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
                         <i class="fa-solid fa-utensils"></i> Zjedzone! (+Makro)
                     </button>
                     <button onclick="saveCurrentRecipe()" class="bg-rose-50 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
@@ -155,7 +188,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie text-emerald-600"></i> Dzienny Bilans
+                            <i class="fa-solid fa-chart-pie text-emerald-600" id="macroIconTitle"></i> Dzienny Bilans
                         </h2>
                         <p id="todayDateDisplay" class="text-xs text-slate-400"></p>
                     </div>
@@ -228,18 +261,17 @@
                             <input type="number" id="inputGoalC" class="w-full bg-slate-100 px-3 py-2 rounded-xl mt-1 font-bold">
                         </div>
                     </div>
-                    <button onclick="saveNutritionGoal()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs shadow active:scale-95 transition">
+                    <button onclick="saveNutritionGoal()" id="saveGoalBtn" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs shadow active:scale-95 transition">
                         Zapisz nowy cel
                     </button>
                 </div>
             </div>
 
-            <!-- SZACOWANIE POSIŁKU PRZEZ AI -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Szybkie dodanie posiłku przez AI</h3>
                 <div class="flex gap-2">
                     <input type="text" id="manualMealName" placeholder="np. Owsianka z masłem orzechowym..." class="flex-1 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
-                    <button onclick="addMealWithAI()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs active:scale-95 transition flex items-center gap-1.5 shrink-0">
+                    <button onclick="addMealWithAI()" id="aiCalcBtn" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs active:scale-95 transition flex items-center gap-1.5 shrink-0">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> AI Licz
                     </button>
                 </div>
@@ -248,7 +280,7 @@
 
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-utensils text-emerald-600"></i> Dzisiaj zjedzone
+                    <i class="fa-solid fa-utensils text-emerald-600" id="mealsIconTitle"></i> Dzisiaj zjedzone
                 </h3>
                 <ul id="mealLogsList" class="divide-y divide-slate-100 text-sm space-y-2"></ul>
             </div>
@@ -260,7 +292,7 @@
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dodaj do kupienia</h2>
                 <div class="flex gap-2">
                     <input type="text" id="shopInput" placeholder="np. Śmietanka 30%..." class="flex-1 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
-                    <button onclick="addShoppingItem()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold active:scale-95 transition">
+                    <button onclick="addShoppingItem()" id="shopAddBtn" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold active:scale-95 transition">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -269,7 +301,7 @@
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-cart-shopping text-emerald-600"></i> Moja Lista Zakupów
+                        <i class="fa-solid fa-cart-shopping text-emerald-600" id="shopIconTitle"></i> Moja Lista Zakupów
                     </h2>
                     <button onclick="clearShopping()" class="text-xs text-red-500 font-semibold bg-red-50 px-2.5 py-1 rounded-lg">Wyczyść</button>
                 </div>
@@ -280,7 +312,7 @@
         <!-- ================= ZAKŁADKA 4: ZAPISANE ================= -->
         <div id="tab-saved" class="hidden space-y-4">
             <h2 class="text-sm font-bold text-slate-700 px-1 flex items-center gap-2">
-                <i class="fa-solid fa-book-bookmark text-emerald-600"></i> Twoje Ulubione Przepisy
+                <i class="fa-solid fa-book-bookmark text-emerald-600" id="savedIconTitle"></i> Twoje Ulubione Przepisy
             </h2>
             <div id="savedRecipesList" class="space-y-3"></div>
         </div>
@@ -319,6 +351,87 @@
         let lastGeneratedRecipe = null;
         let currentGoals = { calories_goal: 2400, protein_goal: 160, fat_goal: 75, carbs_goal: 270 };
 
+        // KONFIGURACJA MOTYWÓW KOLORYSTYCZNYCH
+        const themes = {
+            emerald: {
+                header: 'bg-emerald-600',
+                chef: 'bg-gradient-to-br from-emerald-600 to-teal-700',
+                text: 'text-emerald-600',
+                badge: 'bg-emerald-100 text-emerald-800',
+                btn: 'bg-emerald-600',
+                bar: 'bg-emerald-500'
+            },
+            ocean: {
+                header: 'bg-blue-600',
+                chef: 'bg-gradient-to-br from-blue-600 to-indigo-700',
+                text: 'text-blue-600',
+                badge: 'bg-blue-100 text-blue-800',
+                btn: 'bg-blue-600',
+                bar: 'bg-blue-500'
+            },
+            purple: {
+                header: 'bg-purple-600',
+                chef: 'bg-gradient-to-br from-purple-600 to-pink-700',
+                text: 'text-purple-600',
+                badge: 'bg-purple-100 text-purple-800',
+                btn: 'bg-purple-600',
+                bar: 'bg-purple-500'
+            },
+            amber: {
+                header: 'bg-amber-600',
+                chef: 'bg-gradient-to-br from-amber-600 to-orange-700',
+                text: 'text-amber-600',
+                badge: 'bg-amber-100 text-amber-800',
+                btn: 'bg-amber-600',
+                bar: 'bg-amber-500'
+            }
+        };
+
+        let currentTheme = localStorage.getItem('smart_fridge_theme') || 'emerald';
+
+        function applyTheme(themeName) {
+            currentTheme = themeName;
+            localStorage.setItem('smart_fridge_theme', themeName);
+            const t = themes[themeName];
+
+            document.getElementById('appHeader').className = `${t.header} text-white pt-10 pb-4 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20 transition-colors duration-300`;
+            document.getElementById('chefCardElem').className = `${t.chef} p-5 rounded-3xl text-white shadow-lg transition-colors duration-300`;
+            
+            // Kolor przycisków głównych
+            ['addBtnElem', 'eatRecipeBtn', 'saveGoalBtn', 'aiCalcBtn', 'shopAddBtn'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.className = `${t.btn} text-white font-bold active:scale-95 transition ${el.classList.contains('w-full') ? 'w-full py-2.5 rounded-xl text-xs shadow' : 'px-3.5 py-2.5 rounded-xl'}`;
+            });
+
+            // Kolory ikonek nagłówków sekcji
+            ['fridgeIconTitle', 'macroIconTitle', 'mealsIconTitle', 'shopIconTitle', 'savedIconTitle'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.className = `fa-solid ${el.className.split(' ')[1]} ${t.text}`;
+            });
+
+            // Aktywny pasek Fitatu
+            document.getElementById('mainKcalBar').className = `${t.bar} h-full rounded-full transition-all duration-500`;
+
+            // Przycisk skanuj w nagłówku
+            const scanBtn = document.getElementById('scanBtnContainer');
+            if (scanBtn) scanBtn.className = `bg-white ${t.text} px-3.5 py-2 rounded-2xl font-bold text-xs shadow-md active:scale-95 transition flex items-center gap-1.5 cursor-pointer`;
+
+            // Aktywna zakładka w dolnym menu
+            const activeTabId = ['fridge', 'macro', 'shopping', 'saved'].find(tab => !document.getElementById(`tab-${tab}`).classList.contains('hidden'));
+            if (activeTabId) {
+                document.getElementById(`nav-${activeTabId}`).className = `flex flex-col items-center gap-1 ${t.text}`;
+            }
+        }
+
+        function toggleThemeModal() {
+            document.getElementById('themeModal').classList.toggle('hidden');
+        }
+
+        function setTheme(themeName) {
+            applyTheme(themeName);
+            toggleThemeModal();
+        }
+
         function getTodayStr() {
             const now = new Date();
             const year = now.getFullYear();
@@ -328,12 +441,13 @@
         }
 
         function switchTab(tab) {
-            ['fridge', 'macro', 'shopping', 'saved'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).className = 'flex flex-col items-center gap-1 text-slate-400';
+            const t = themes[currentTheme];
+            ['fridge', 'macro', 'shopping', 'saved'].forEach(tName => {
+                document.getElementById(`tab-${tName}`).classList.add('hidden');
+                document.getElementById(`nav-${tName}`).className = 'flex flex-col items-center gap-1 text-slate-400';
             });
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            document.getElementById(`nav-${tab}`).className = 'flex flex-col items-center gap-1 text-emerald-600';
+            document.getElementById(`nav-${tab}`).className = `flex flex-col items-center gap-1 ${t.text}`;
 
             if (tab === 'fridge') loadInventory();
             if (tab === 'macro') loadNutritionData();
@@ -344,9 +458,9 @@
         function selectStyle(style, btn) {
             selectedStyle = style;
             document.querySelectorAll('.style-chip').forEach(el => {
-                el.className = 'style-chip bg-emerald-700/60 text-emerald-100 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap';
+                el.className = 'style-chip bg-black/20 text-white/90 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap';
             });
-            btn.className = 'style-chip bg-white text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm';
+            btn.className = 'style-chip bg-white text-slate-900 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm';
         }
 
         function showStatus(text) {
@@ -428,6 +542,7 @@
                 });
             }
 
+            const t = themes[currentTheme];
             document.getElementById('miniKcal').innerText = `${totalKcal} / ${currentGoals.calories_goal}`;
             document.getElementById('miniP').innerText = totalP;
             document.getElementById('miniF').innerText = totalF;
@@ -436,6 +551,7 @@
             document.getElementById('miniKcalBar').style.width = `${miniPct}%`;
 
             document.getElementById('mainKcalEaten').innerText = totalKcal;
+            document.getElementById('mainKcalEaten').className = `font-extrabold ${t.text}`;
             document.getElementById('mainKcalGoal').innerText = currentGoals.calories_goal;
             document.getElementById('mainKcalBar').style.width = `${miniPct}%`;
 
@@ -566,8 +682,9 @@
             }
             clearBtn.classList.remove('hidden');
 
+            const t = themes[currentTheme];
             items.forEach(item => {
-                let badgeClass = 'bg-emerald-50 text-emerald-700';
+                let badgeClass = `${t.badge}`;
                 let badgeText = `${item.days_left} dni`;
                 if (item.days_left <= 2) {
                     badgeClass = 'bg-red-100 text-red-700 font-bold animate-pulse';
@@ -765,9 +882,10 @@
                 return;
             }
 
+            const t = themes[currentTheme];
             items.forEach(item => {
                 const textStyle = item.bought ? 'line-through text-slate-400' : 'text-slate-800 font-medium';
-                const icon = item.bought ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-regular fa-circle text-slate-300';
+                const icon = item.bought ? `fa-solid fa-circle-check ${t.text}` : 'fa-regular fa-circle text-slate-300';
                 list.innerHTML += `
                     <li onclick="toggleShopping(${item.id})" class="py-3 flex items-center gap-3 cursor-pointer">
                         <i class="${icon} text-lg"></i>
@@ -798,6 +916,8 @@
             loadShopping();
         }
 
+        // Inicjalizacja przy starcie
+        applyTheme(currentTheme);
         loadInventory();
         loadNutritionData();
     </script>
