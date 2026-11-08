@@ -103,7 +103,7 @@
                 </div>
             </div>
 
-            <!-- Krok 2: Data urodzenia (NAPRAWIONA I WYŚRODKOWANA NA IOS) -->
+            <!-- Krok 2: Data urodzenia -->
             <div id="ob-step-2" class="ob-step hidden space-y-5 w-full">
                 <div class="text-center space-y-2">
                     <h2 class="text-2xl font-extrabold">Kiedy się urodziłeś?</h2>
@@ -331,18 +331,19 @@
     <main class="max-w-md mx-auto px-4 mt-5">
         <!-- ================= ZAKŁADKA 1: LODÓWKA ================= -->
         <div id="tab-fridge" class="space-y-5">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <!-- NAPRAWIONY FORMULARZ DODAWANIA PRODUKTU (min-w-0 + shrink-0) -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dodaj produkt ręcznie</h2>
-                <div class="flex gap-1.5">
-                    <input type="text" id="itemName" placeholder="Produkt (np. Kurczak)" class="flex-1 bg-slate-100 px-3 py-2.5 rounded-xl text-sm focus:outline-none">
-                    <input type="text" id="itemQty" placeholder="Ilość" value="1 szt." class="w-16 bg-slate-100 px-2.5 py-2.5 rounded-xl text-sm text-center focus:outline-none">
-                    <select id="itemDays" class="bg-slate-100 px-2 py-2.5 rounded-xl text-xs font-semibold text-slate-600 focus:outline-none">
+                <div class="flex items-center gap-1.5 w-full">
+                    <input type="text" id="itemName" placeholder="Produkt (np. Kurczak)" class="flex-1 min-w-0 bg-slate-100 px-3 py-2.5 rounded-xl text-sm focus:outline-none">
+                    <input type="text" id="itemQty" placeholder="Ilość" value="1 szt." class="w-14 shrink-0 bg-slate-100 px-1.5 py-2.5 rounded-xl text-xs text-center font-semibold focus:outline-none">
+                    <select id="itemDays" class="w-[68px] shrink-0 bg-slate-100 px-1.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 focus:outline-none">
                         <option value="2">2 dni</option>
                         <option value="4">4 dni</option>
                         <option value="7" selected>7 dni</option>
                         <option value="14">14+ dni</option>
                     </select>
-                    <button onclick="addItem()" class="theme-bg text-white px-3.5 py-2.5 rounded-xl font-bold active:scale-95 transition">
+                    <button onclick="addItem()" class="shrink-0 theme-bg text-white w-10 h-10 rounded-xl font-bold active:scale-95 transition flex items-center justify-center shadow-sm">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -515,10 +516,10 @@
                 </div>
             </div>
 
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-3 overflow-hidden">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Szybkie dodanie posiłku przez AI</h3>
-                <div class="flex gap-2">
-                    <input type="text" id="manualMealName" placeholder="np. Owsianka z masłem orzechowym..." class="flex-1 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
+                <div class="flex items-center gap-2 w-full">
+                    <input type="text" id="manualMealName" placeholder="np. Owsianka z masłem orzechowym..." class="flex-1 min-w-0 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
                     <button onclick="addMealWithAI()" class="theme-bg text-white px-4 py-2.5 rounded-xl font-bold text-xs active:scale-95 transition flex items-center gap-1.5 shrink-0">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> AI Licz
                     </button>
@@ -536,11 +537,11 @@
 
         <!-- ================= ZAKŁADKA 3: ZAKUPY ================= -->
         <div id="tab-shopping" class="hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dodaj do kupienia</h2>
-                <div class="flex gap-2">
-                    <input type="text" id="shopInput" placeholder="np. Śmietanka 30%..." class="flex-1 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
-                    <button onclick="addShoppingItem()" class="theme-bg text-white px-4 py-2.5 rounded-xl font-bold active:scale-95 transition">
+                <div class="flex items-center gap-2 w-full">
+                    <input type="text" id="shopInput" placeholder="np. Śmietanka 30%..." class="flex-1 min-w-0 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
+                    <button onclick="addShoppingItem()" class="shrink-0 theme-bg text-white w-10 h-10 rounded-xl font-bold active:scale-95 transition flex items-center justify-center">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
