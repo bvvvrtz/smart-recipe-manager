@@ -14,9 +14,34 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        html, body { 
+            overflow-x: hidden; 
+            width: 100%; 
+            position: relative;
+            -webkit-tap-highlight-color: transparent; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
+        /* Blokada rozpychania pola daty na iOS Safari */
+        input[type="date"] {
+            -webkit-appearance: none;
+            appearance: none;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            text-align: center !important;
+            text-align-last: center !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+        input[type="date"]::-webkit-date-and-time-value {
+            text-align: center;
+            margin: 0 auto;
+        }
+
         :root {
             --app-theme: #059669; 
             --app-theme-light: #0596691a;
@@ -47,8 +72,8 @@
 <body class="bg-slate-50 text-slate-800 pb-28">
 
     <!-- ================= KREATOR PIERWSZEGO URUCHOMIENIA (8 KROKÓW) ================= -->
-    <div id="onboardingOverlay" class="hidden fixed inset-0 z-[140] bg-slate-900/95 backdrop-blur-md flex-col justify-between p-6 text-white overflow-y-auto">
-        <div class="max-w-md mx-auto w-full pt-4">
+    <div id="onboardingOverlay" class="hidden fixed inset-0 w-screen h-dvh z-[140] bg-slate-900/95 backdrop-blur-md flex-col justify-between px-6 py-6 text-white overflow-y-auto overflow-x-hidden box-border">
+        <div class="max-w-md mx-auto w-full pt-4 shrink-0">
             <div class="flex justify-between items-center text-xs font-bold text-slate-400 mb-2">
                 <span>KROK <span id="obStepNum">1</span> Z 8</span>
                 <span id="obStepPct">12%</span>
@@ -58,9 +83,9 @@
             </div>
         </div>
 
-        <div class="max-w-md mx-auto w-full my-auto py-6">
+        <div class="max-w-md mx-auto w-full my-auto py-6 overflow-x-hidden">
             <!-- Krok 1: Płeć -->
-            <div id="ob-step-1" class="ob-step space-y-5">
+            <div id="ob-step-1" class="ob-step space-y-5 w-full">
                 <div class="text-center space-y-2">
                     <span class="theme-badge px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Start</span>
                     <h2 class="text-2xl font-extrabold">Wybierz swoją płeć</h2>
@@ -78,53 +103,55 @@
                 </div>
             </div>
 
-            <!-- Krok 2: Data urodzenia -->
-            <div id="ob-step-2" class="ob-step hidden space-y-5">
+            <!-- Krok 2: Data urodzenia (NAPRAWIONA I WYŚRODKOWANA NA IOS) -->
+            <div id="ob-step-2" class="ob-step hidden space-y-5 w-full">
                 <div class="text-center space-y-2">
                     <h2 class="text-2xl font-extrabold">Kiedy się urodziłeś?</h2>
                     <p class="text-xs text-slate-400">Wiek wpływa na tempo przemiany materii.</p>
                 </div>
-                <input type="date" id="obBirthDate" value="2005-01-01" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-center text-lg font-bold text-white focus:outline-none">
+                <div class="w-full max-w-[260px] mx-auto overflow-hidden">
+                    <input type="date" id="obBirthDate" value="2005-01-01" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl py-4 px-3 text-center text-lg font-bold text-white focus:outline-none">
+                </div>
             </div>
 
             <!-- Krok 3: Wzrost -->
-            <div id="ob-step-3" class="ob-step hidden space-y-5">
+            <div id="ob-step-3" class="ob-step hidden space-y-5 w-full">
                 <div class="text-center space-y-2">
                     <h2 class="text-2xl font-extrabold">Twój wzrost (cm)</h2>
                     <p class="text-xs text-slate-400">Podaj swój wzrost w centymetrach.</p>
                 </div>
-                <div class="relative">
+                <div class="relative w-full max-w-[260px] mx-auto">
                     <input type="number" id="obHeight" placeholder="np. 182" value="180" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-center text-2xl font-extrabold text-white focus:outline-none">
                     <span class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">cm</span>
                 </div>
             </div>
 
             <!-- Krok 4: Aktualna waga -->
-            <div id="ob-step-4" class="ob-step hidden space-y-5">
+            <div id="ob-step-4" class="ob-step hidden space-y-5 w-full">
                 <div class="text-center space-y-2">
                     <h2 class="text-2xl font-extrabold">Aktualna waga (kg)</h2>
                     <p class="text-xs text-slate-400">Ile obecnie ważysz?</p>
                 </div>
-                <div class="relative">
+                <div class="relative w-full max-w-[260px] mx-auto">
                     <input type="number" step="0.1" id="obCurrentWeight" placeholder="np. 80" value="80" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-center text-2xl font-extrabold text-white focus:outline-none">
                     <span class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">kg</span>
                 </div>
             </div>
 
             <!-- Krok 5: Docelowa waga -->
-            <div id="ob-step-5" class="ob-step hidden space-y-5">
+            <div id="ob-step-5" class="ob-step hidden space-y-5 w-full">
                 <div class="text-center space-y-2">
                     <h2 class="text-2xl font-extrabold">Docelowa waga (kg)</h2>
                     <p class="text-xs text-slate-400">Jaką wagę chcesz osiągnąć?</p>
                 </div>
-                <div class="relative">
+                <div class="relative w-full max-w-[260px] mx-auto">
                     <input type="number" step="0.1" id="obTargetWeight" placeholder="np. 75" value="80" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-center text-2xl font-extrabold text-white focus:outline-none">
                     <span class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">kg</span>
                 </div>
             </div>
 
             <!-- Krok 6: Tempo zmiany wagi -->
-            <div id="ob-step-6" class="ob-step hidden space-y-4">
+            <div id="ob-step-6" class="ob-step hidden space-y-4 w-full">
                 <div class="text-center space-y-1">
                     <h2 class="text-2xl font-extrabold">W jakim tempie?</h2>
                     <p class="text-xs text-slate-400">Wybierz tygodniowe wahanie wagi:</p>
@@ -158,7 +185,7 @@
             </div>
 
             <!-- Krok 7: Ilość treningów w tygodniu -->
-            <div id="ob-step-7" class="ob-step hidden space-y-4">
+            <div id="ob-step-7" class="ob-step hidden space-y-4 w-full">
                 <div class="text-center space-y-1">
                     <h2 class="text-2xl font-extrabold">Treningi w tygodniu</h2>
                     <p class="text-xs text-slate-400">Ile razy w tygodniu trenujesz (siłownia, sport)?</p>
@@ -184,7 +211,7 @@
             </div>
 
             <!-- Krok 8: Poziom ruchu w ciągu dnia -->
-            <div id="ob-step-8" class="ob-step hidden space-y-4">
+            <div id="ob-step-8" class="ob-step hidden space-y-4 w-full">
                 <div class="text-center space-y-1">
                     <h2 class="text-2xl font-extrabold">Ruch w ciągu dnia</h2>
                     <p class="text-xs text-slate-400">Jak wygląda Twoja aktywność poza treningami?</p>
@@ -210,7 +237,7 @@
             </div>
         </div>
 
-        <div class="max-w-md mx-auto w-full flex gap-3 pb-4">
+        <div class="max-w-md mx-auto w-full flex gap-3 pb-4 shrink-0">
             <button id="obPrevBtn" onclick="prevObStep()" class="hidden bg-slate-800 text-slate-300 font-bold py-3.5 px-6 rounded-2xl text-sm active:scale-95 transition">
                 Wstecz
             </button>
@@ -717,7 +744,6 @@
                 hideScanStatus();
             }
         }
-        // ---------------------------------------------------
 
         // --- CUSTOM TOASTS & MODALS ---
         let toastTimeout;
