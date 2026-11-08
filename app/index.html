@@ -12,15 +12,26 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- SYSTEM ZMIENNYCH CSS DO DYNAMICZNEGO MOTYWU RGB -->
     <style>
         body { -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        :root {
+            --app-theme: #059669; /* Domyślny Szmaragdowy */
+            --app-theme-light: #0596691a; /* Wersja z przezroczystością (badge) */
+        }
+        
+        .theme-bg { background-color: var(--app-theme) !important; }
+        .theme-bg-grad { background: linear-gradient(135deg, var(--app-theme), #0f172a) !important; }
+        .theme-text { color: var(--app-theme) !important; }
+        .theme-badge { background-color: var(--app-theme-light) !important; color: var(--app-theme) !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 pb-28">
 
-    <!-- NAGŁÓWEK Z DYNAMICZNYM KOLOREM -->
-    <header id="appHeader" class="bg-emerald-600 text-white pt-10 pb-4 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20 transition-colors duration-300">
+    <header class="theme-bg text-white pt-10 pb-4 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20 transition-colors duration-200">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div>
                 <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
@@ -29,14 +40,16 @@
                 <p class="text-white/80 text-xs mt-0.5">Lodówka, Przepisy & Fitatu AI</p>
             </div>
             <div class="flex items-center gap-2">
-                <!-- PRZYCISK WYBORU MOTYWU -->
-                <button onclick="toggleThemeModal()" title="Zmień motyw kolorystyczny" class="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center">
+                <!-- NATYWNY PRÓBNIK KOLORÓW RGB -->
+                <label title="Wybierz własny kolor motywu" class="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center cursor-pointer relative">
                     <i class="fa-solid fa-palette text-sm"></i>
-                </button>
+                    <input type="color" id="themeColorPicker" class="absolute opacity-0 w-full h-full cursor-pointer left-0 top-0" oninput="applyCustomTheme(this.value)">
+                </label>
+                
                 <button onclick="window.location.reload()" title="Odśwież aplikację" class="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center">
                     <i class="fa-solid fa-rotate-right text-sm"></i>
                 </button>
-                <label id="scanBtnContainer" class="bg-white text-emerald-700 px-3.5 py-2 rounded-2xl font-bold text-xs shadow-md active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
+                <label class="bg-white theme-text px-3.5 py-2 rounded-2xl font-bold text-xs shadow-md active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-camera text-base"></i>
                     <span>Skanuj</span>
                     <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="scanImage(event)">
@@ -44,7 +57,6 @@
             </div>
         </div>
 
-        <!-- MINI PASEK FITATU W NAGŁÓWKU -->
         <div onclick="switchTab('macro')" class="max-w-md mx-auto mt-3.5 bg-black/20 backdrop-blur-sm p-2.5 rounded-2xl cursor-pointer active:scale-[0.99] transition border border-white/20">
             <div class="flex justify-between items-center text-xs mb-1">
                 <span class="font-bold flex items-center gap-1.5 text-white">
@@ -63,39 +75,11 @@
         </div>
     </header>
 
-    <!-- MODAL WYBORU MOTYWU -->
-    <div id="themeModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-xs rounded-3xl p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-200">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-palette text-emerald-600"></i> Wybierz motyw
-                </h3>
-                <button onclick="toggleThemeModal()" class="text-slate-400 hover:text-slate-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-            <div class="grid grid-cols-2 gap-2.5">
-                <button onclick="setTheme('emerald')" class="p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold text-xs flex items-center gap-2 active:scale-95 transition">
-                    <span class="w-4 h-4 rounded-full bg-emerald-600 inline-block"></span> Szmaragdowy
-                </button>
-                <button onclick="setTheme('ocean')" class="p-3 rounded-2xl border-2 border-blue-500 bg-blue-50 text-blue-800 font-bold text-xs flex items-center gap-2 active:scale-95 transition">
-                    <span class="w-4 h-4 rounded-full bg-blue-600 inline-block"></span> Oceaniczny
-                </button>
-                <button onclick="setTheme('purple')" class="p-3 rounded-2xl border-2 border-purple-500 bg-purple-50 text-purple-800 font-bold text-xs flex items-center gap-2 active:scale-95 transition">
-                    <span class="w-4 h-4 rounded-full bg-purple-600 inline-block"></span> Fioletowy
-                </button>
-                <button onclick="setTheme('amber')" class="p-3 rounded-2xl border-2 border-amber-500 bg-amber-50 text-amber-800 font-bold text-xs flex items-center gap-2 active:scale-95 transition">
-                    <span class="w-4 h-4 rounded-full bg-amber-600 inline-block"></span> Bursztynowy
-                </button>
-            </div>
-        </div>
-    </div>
-
     <main class="max-w-md mx-auto px-4 mt-5">
 
-        <div id="statusAlert" class="hidden mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl text-sm flex items-center gap-3 shadow-sm">
-            <i class="fa-solid fa-spinner fa-spin text-emerald-600 text-lg"></i>
-            <span id="statusText">Przetwarzanie przez AI...</span>
+        <div id="statusAlert" class="hidden mb-4 bg-slate-50 border border-slate-200 theme-text px-4 py-3 rounded-2xl text-sm flex items-center gap-3 shadow-sm">
+            <i class="fa-solid fa-spinner fa-spin text-lg"></i>
+            <span id="statusText" class="font-semibold">Przetwarzanie przez AI...</span>
         </div>
 
         <!-- ================= ZAKŁADKA 1: LODÓWKA ================= -->
@@ -103,7 +87,7 @@
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dodaj produkt ręcznie</h2>
                 <div class="flex gap-1.5">
-                    <input type="text" id="itemName" placeholder="Produkt (np. Kurczak)" class="flex-1 bg-slate-100 px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="text" id="itemName" placeholder="Produkt (np. Kurczak)" class="flex-1 bg-slate-100 px-3 py-2.5 rounded-xl text-sm focus:outline-none">
                     <input type="text" id="itemQty" placeholder="Ilość" value="1 szt." class="w-16 bg-slate-100 px-2.5 py-2.5 rounded-xl text-sm text-center focus:outline-none">
                     <select id="itemDays" class="bg-slate-100 px-2 py-2.5 rounded-xl text-xs font-semibold text-slate-600 focus:outline-none">
                         <option value="2">2 dni</option>
@@ -111,7 +95,7 @@
                         <option value="7" selected>7 dni</option>
                         <option value="14">14+ dni</option>
                     </select>
-                    <button onclick="addItem()" id="addBtnElem" class="bg-emerald-600 text-white px-3.5 py-2.5 rounded-xl font-bold active:scale-95 transition">
+                    <button onclick="addItem()" class="theme-bg text-white px-3.5 py-2.5 rounded-xl font-bold active:scale-95 transition">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -120,8 +104,8 @@
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-snowflake text-emerald-600" id="fridgeIconTitle"></i> Moja Lodówka
-                        <span id="itemCount" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">0</span>
+                        <i class="fa-solid fa-snowflake theme-text"></i> Moja Lodówka
+                        <span id="itemCount" class="text-xs theme-badge font-bold px-2 py-0.5 rounded-full">0</span>
                     </h2>
                     <button onclick="clearInventory()" id="clearAllBtn" class="hidden text-xs text-red-500 font-semibold flex items-center gap-1 bg-red-50 px-2.5 py-1 rounded-lg active:scale-95 transition">
                         <i class="fa-solid fa-trash-can"></i> Wyczyść
@@ -130,7 +114,7 @@
                 <ul id="inventoryList" class="divide-y divide-slate-100 text-sm space-y-1"></ul>
             </div>
 
-            <div id="chefCardElem" class="bg-gradient-to-br from-emerald-600 to-teal-700 p-5 rounded-3xl text-white shadow-lg transition-colors duration-300">
+            <div class="theme-bg-grad p-5 rounded-3xl text-white shadow-lg transition-colors duration-200">
                 <h2 class="text-base font-bold flex items-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Szef Kuchni AI
                 </h2>
@@ -153,7 +137,7 @@
                 <h3 id="recipeTitle" class="font-bold text-slate-800 text-lg leading-snug"></h3>
 
                 <div class="flex gap-2">
-                    <button onclick="eatCurrentRecipe()" id="eatRecipeBtn" class="flex-1 bg-emerald-600 text-white py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
+                    <button onclick="eatCurrentRecipe()" class="flex-1 theme-bg text-white py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
                         <i class="fa-solid fa-utensils"></i> Zjedzone! (+Makro)
                     </button>
                     <button onclick="saveCurrentRecipe()" class="bg-rose-50 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition">
@@ -168,7 +152,7 @@
                     <span class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg flex items-center gap-1">
                         <i class="fa-solid fa-clock"></i> <span id="recipeTime"></span>
                     </span>
-                    <span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                    <span class="theme-badge px-2.5 py-1 rounded-lg flex items-center gap-1">
                         <i class="fa-solid fa-dumbbell"></i> <span id="recipeMacros"></span>
                     </span>
                 </div>
@@ -188,7 +172,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie text-emerald-600" id="macroIconTitle"></i> Dzienny Bilans
+                            <i class="fa-solid fa-chart-pie theme-text"></i> Dzienny Bilans
                         </h2>
                         <p id="todayDateDisplay" class="text-xs text-slate-400"></p>
                     </div>
@@ -201,12 +185,12 @@
                     <div class="flex justify-between items-baseline mb-1.5">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Kalorie</span>
                         <span class="text-lg font-extrabold text-slate-800">
-                            <span id="mainKcalEaten" class="text-emerald-600">0</span> 
+                            <span id="mainKcalEaten" class="theme-text">0</span> 
                             <span class="text-xs font-normal text-slate-400">/ <span id="mainKcalGoal">2400</span> kcal</span>
                         </span>
                     </div>
                     <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
-                        <div id="mainKcalBar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        <div id="mainKcalBar" class="theme-bg h-full rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                     <p id="kcalRemainingText" class="text-[11px] text-slate-500 mt-1.5 text-right font-medium"></p>
                 </div>
@@ -261,7 +245,7 @@
                             <input type="number" id="inputGoalC" class="w-full bg-slate-100 px-3 py-2 rounded-xl mt-1 font-bold">
                         </div>
                     </div>
-                    <button onclick="saveNutritionGoal()" id="saveGoalBtn" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs shadow active:scale-95 transition">
+                    <button onclick="saveNutritionGoal()" class="w-full theme-bg text-white font-bold py-2.5 rounded-xl text-xs shadow active:scale-95 transition">
                         Zapisz nowy cel
                     </button>
                 </div>
@@ -271,7 +255,7 @@
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Szybkie dodanie posiłku przez AI</h3>
                 <div class="flex gap-2">
                     <input type="text" id="manualMealName" placeholder="np. Owsianka z masłem orzechowym..." class="flex-1 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
-                    <button onclick="addMealWithAI()" id="aiCalcBtn" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs active:scale-95 transition flex items-center gap-1.5 shrink-0">
+                    <button onclick="addMealWithAI()" class="theme-bg text-white px-4 py-2.5 rounded-xl font-bold text-xs active:scale-95 transition flex items-center gap-1.5 shrink-0">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> AI Licz
                     </button>
                 </div>
@@ -280,7 +264,7 @@
 
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-utensils text-emerald-600" id="mealsIconTitle"></i> Dzisiaj zjedzone
+                    <i class="fa-solid fa-utensils theme-text"></i> Dzisiaj zjedzone
                 </h3>
                 <ul id="mealLogsList" class="divide-y divide-slate-100 text-sm space-y-2"></ul>
             </div>
@@ -292,7 +276,7 @@
                 <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">Dodaj do kupienia</h2>
                 <div class="flex gap-2">
                     <input type="text" id="shopInput" placeholder="np. Śmietanka 30%..." class="flex-1 bg-slate-100 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none">
-                    <button onclick="addShoppingItem()" id="shopAddBtn" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold active:scale-95 transition">
+                    <button onclick="addShoppingItem()" class="theme-bg text-white px-4 py-2.5 rounded-xl font-bold active:scale-95 transition">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -301,7 +285,7 @@
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-cart-shopping text-emerald-600" id="shopIconTitle"></i> Moja Lista Zakupów
+                        <i class="fa-solid fa-cart-shopping theme-text"></i> Moja Lista Zakupów
                     </h2>
                     <button onclick="clearShopping()" class="text-xs text-red-500 font-semibold bg-red-50 px-2.5 py-1 rounded-lg">Wyczyść</button>
                 </div>
@@ -312,7 +296,7 @@
         <!-- ================= ZAKŁADKA 4: ZAPISANE ================= -->
         <div id="tab-saved" class="hidden space-y-4">
             <h2 class="text-sm font-bold text-slate-700 px-1 flex items-center gap-2">
-                <i class="fa-solid fa-book-bookmark text-emerald-600" id="savedIconTitle"></i> Twoje Ulubione Przepisy
+                <i class="fa-solid fa-book-bookmark theme-text"></i> Twoje Ulubione Przepisy
             </h2>
             <div id="savedRecipesList" class="space-y-3"></div>
         </div>
@@ -321,7 +305,7 @@
 
     <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 z-30">
         <div class="max-w-md mx-auto flex justify-around items-center text-xs font-semibold">
-            <button onclick="switchTab('fridge')" id="nav-fridge" class="flex flex-col items-center gap-1 text-emerald-600">
+            <button onclick="switchTab('fridge')" id="nav-fridge" class="flex flex-col items-center gap-1 theme-text">
                 <i class="fa-solid fa-kitchen-set text-lg"></i>
                 <span>Lodówka</span>
             </button>
@@ -351,86 +335,28 @@
         let lastGeneratedRecipe = null;
         let currentGoals = { calories_goal: 2400, protein_goal: 160, fat_goal: 75, carbs_goal: 270 };
 
-        // KONFIGURACJA MOTYWÓW KOLORYSTYCZNYCH
-        const themes = {
-            emerald: {
-                header: 'bg-emerald-600',
-                chef: 'bg-gradient-to-br from-emerald-600 to-teal-700',
-                text: 'text-emerald-600',
-                badge: 'bg-emerald-100 text-emerald-800',
-                btn: 'bg-emerald-600',
-                bar: 'bg-emerald-500'
-            },
-            ocean: {
-                header: 'bg-blue-600',
-                chef: 'bg-gradient-to-br from-blue-600 to-indigo-700',
-                text: 'text-blue-600',
-                badge: 'bg-blue-100 text-blue-800',
-                btn: 'bg-blue-600',
-                bar: 'bg-blue-500'
-            },
-            purple: {
-                header: 'bg-purple-600',
-                chef: 'bg-gradient-to-br from-purple-600 to-pink-700',
-                text: 'text-purple-600',
-                badge: 'bg-purple-100 text-purple-800',
-                btn: 'bg-purple-600',
-                bar: 'bg-purple-500'
-            },
-            amber: {
-                header: 'bg-amber-600',
-                chef: 'bg-gradient-to-br from-amber-600 to-orange-700',
-                text: 'text-amber-600',
-                badge: 'bg-amber-100 text-amber-800',
-                btn: 'bg-amber-600',
-                bar: 'bg-amber-500'
-            }
-        };
-
-        let currentTheme = localStorage.getItem('smart_fridge_theme') || 'emerald';
-
-        function applyTheme(themeName) {
-            currentTheme = themeName;
-            localStorage.setItem('smart_fridge_theme', themeName);
-            const t = themes[themeName];
-
-            document.getElementById('appHeader').className = `${t.header} text-white pt-10 pb-4 px-5 rounded-b-3xl shadow-lg sticky top-0 z-20 transition-colors duration-300`;
-            document.getElementById('chefCardElem').className = `${t.chef} p-5 rounded-3xl text-white shadow-lg transition-colors duration-300`;
+        // --- SYSTEM ZMIANY MOTYWU RGB ---
+        function applyCustomTheme(hexColor) {
+            localStorage.setItem('smart_fridge_custom_theme', hexColor);
             
-            // Kolor przycisków głównych
-            ['addBtnElem', 'eatRecipeBtn', 'saveGoalBtn', 'aiCalcBtn', 'shopAddBtn'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.className = `${t.btn} text-white font-bold active:scale-95 transition ${el.classList.contains('w-full') ? 'w-full py-2.5 rounded-xl text-xs shadow' : 'px-3.5 py-2.5 rounded-xl'}`;
-            });
-
-            // Kolory ikonek nagłówków sekcji
-            ['fridgeIconTitle', 'macroIconTitle', 'mealsIconTitle', 'shopIconTitle', 'savedIconTitle'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.className = `fa-solid ${el.className.split(' ')[1]} ${t.text}`;
-            });
-
-            // Aktywny pasek Fitatu
-            document.getElementById('mainKcalBar').className = `${t.bar} h-full rounded-full transition-all duration-500`;
-
-            // Przycisk skanuj w nagłówku
-            const scanBtn = document.getElementById('scanBtnContainer');
-            if (scanBtn) scanBtn.className = `bg-white ${t.text} px-3.5 py-2 rounded-2xl font-bold text-xs shadow-md active:scale-95 transition flex items-center gap-1.5 cursor-pointer`;
-
-            // Aktywna zakładka w dolnym menu
-            const activeTabId = ['fridge', 'macro', 'shopping', 'saved'].find(tab => !document.getElementById(`tab-${tab}`).classList.contains('hidden'));
-            if (activeTabId) {
-                document.getElementById(`nav-${activeTabId}`).className = `flex flex-col items-center gap-1 ${t.text}`;
+            // Zmiana głównych zmiennych CSS
+            document.documentElement.style.setProperty('--app-theme', hexColor);
+            document.documentElement.style.setProperty('--app-theme-light', hexColor + '1a'); // 10% opacity na odznaki
+            
+            // Aktualizacja samego pickera (by pokazywał odpowiedni kolor)
+            const picker = document.getElementById('themeColorPicker');
+            if (picker && picker.value !== hexColor) {
+                picker.value = hexColor;
             }
+
+            // Odśwież pasek nawigacji, by załadował nową klasę kolorystyczną
+            const activeTabId = ['fridge', 'macro', 'shopping', 'saved'].find(tab => !document.getElementById(`tab-${tab}`).classList.contains('hidden')) || 'fridge';
+            switchTab(activeTabId);
         }
 
-        function toggleThemeModal() {
-            document.getElementById('themeModal').classList.toggle('hidden');
-        }
-
-        function setTheme(themeName) {
-            applyTheme(themeName);
-            toggleThemeModal();
-        }
+        // --- INICJALIZACJA ---
+        let savedTheme = localStorage.getItem('smart_fridge_custom_theme') || '#059669';
+        applyCustomTheme(savedTheme);
 
         function getTodayStr() {
             const now = new Date();
@@ -441,13 +367,12 @@
         }
 
         function switchTab(tab) {
-            const t = themes[currentTheme];
             ['fridge', 'macro', 'shopping', 'saved'].forEach(tName => {
                 document.getElementById(`tab-${tName}`).classList.add('hidden');
                 document.getElementById(`nav-${tName}`).className = 'flex flex-col items-center gap-1 text-slate-400';
             });
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            document.getElementById(`nav-${tab}`).className = `flex flex-col items-center gap-1 ${t.text}`;
+            document.getElementById(`nav-${tab}`).className = `flex flex-col items-center gap-1 theme-text`;
 
             if (tab === 'fridge') loadInventory();
             if (tab === 'macro') loadNutritionData();
@@ -542,7 +467,6 @@
                 });
             }
 
-            const t = themes[currentTheme];
             document.getElementById('miniKcal').innerText = `${totalKcal} / ${currentGoals.calories_goal}`;
             document.getElementById('miniP').innerText = totalP;
             document.getElementById('miniF').innerText = totalF;
@@ -551,7 +475,7 @@
             document.getElementById('miniKcalBar').style.width = `${miniPct}%`;
 
             document.getElementById('mainKcalEaten').innerText = totalKcal;
-            document.getElementById('mainKcalEaten').className = `font-extrabold ${t.text}`;
+            document.getElementById('mainKcalEaten').className = 'font-extrabold theme-text';
             document.getElementById('mainKcalGoal').innerText = currentGoals.calories_goal;
             document.getElementById('mainKcalBar').style.width = `${miniPct}%`;
 
@@ -682,9 +606,8 @@
             }
             clearBtn.classList.remove('hidden');
 
-            const t = themes[currentTheme];
             items.forEach(item => {
-                let badgeClass = `${t.badge}`;
+                let badgeClass = 'theme-badge';
                 let badgeText = `${item.days_left} dni`;
                 if (item.days_left <= 2) {
                     badgeClass = 'bg-red-100 text-red-700 font-bold animate-pulse';
@@ -788,8 +711,8 @@
                     missingSec.classList.remove('hidden');
                     data.missing_ingredients.forEach(ing => {
                         missingList.innerHTML += `
-                            <button onclick="quickAddShopping('${ing}', this)" class="bg-white border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1 active:scale-95 transition">
-                                <i class="fa-solid fa-plus text-emerald-600"></i> ${ing}
+                            <button onclick="quickAddShopping('${ing}', this)" class="bg-white border border-slate-200 theme-text px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1 active:scale-95 transition">
+                                <i class="fa-solid fa-plus"></i> ${ing}
                             </button>`;
                     });
                 } else {
@@ -810,7 +733,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ device_id: deviceId, name })
             });
-            btn.className = 'bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1';
+            btn.className = 'theme-badge px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1';
             btn.innerHTML = `<i class="fa-solid fa-check"></i> ${name}`;
         }
 
@@ -856,9 +779,9 @@
                         <div class="flex flex-wrap gap-1.5 text-[11px] font-bold">
                             <span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">${r.calories}</span>
                             <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">${r.prep_time}</span>
-                            <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">${r.macros}</span>
+                            <span class="theme-badge px-2 py-0.5 rounded">${r.macros}</span>
                         </div>
-                        <button onclick="eatSavedRecipe('${safeTitle}', '${safeCal}', '${safeMac}')" class="w-full bg-emerald-50 text-emerald-700 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+                        <button onclick="eatSavedRecipe('${safeTitle}', '${safeCal}', '${safeMac}')" class="w-full theme-badge font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
                             <i class="fa-solid fa-utensils"></i> Zjedzone! (+Makro do Fitatu)
                         </button>
                         <p class="text-xs text-slate-600 whitespace-pre-line pt-2 border-t border-slate-50">${r.content}</p>
@@ -882,10 +805,9 @@
                 return;
             }
 
-            const t = themes[currentTheme];
             items.forEach(item => {
                 const textStyle = item.bought ? 'line-through text-slate-400' : 'text-slate-800 font-medium';
-                const icon = item.bought ? `fa-solid fa-circle-check ${t.text}` : 'fa-regular fa-circle text-slate-300';
+                const icon = item.bought ? `fa-solid fa-circle-check theme-text` : 'fa-regular fa-circle text-slate-300';
                 list.innerHTML += `
                     <li onclick="toggleShopping(${item.id})" class="py-3 flex items-center gap-3 cursor-pointer">
                         <i class="${icon} text-lg"></i>
@@ -916,8 +838,6 @@
             loadShopping();
         }
 
-        // Inicjalizacja przy starcie
-        applyTheme(currentTheme);
         loadInventory();
         loadNutritionData();
     </script>
